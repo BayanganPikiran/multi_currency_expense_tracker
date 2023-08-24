@@ -27,14 +27,24 @@ class App(customtkinter.CTk):
         # create expense frame
         self.expense_frame = customtkinter.CTkFrame(self)
         self.expense_frame.pack(expand=True, fill=tk.BOTH)
-        self.exp_desc_entry = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter description here")
-        self.exp_desc_entry.grid(row=0, column=0, columnspan=2)
-        self.expense_type = customtkinter.CTkComboBox(self.expense_frame, values=EXPENSE_TYPES)
-        self.expense_type.grid(row=0, column=2)
-        self.expense_amount = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter expense amount here")
-        self.expense_amount.grid(row=1, column=0, columnspan=2)
-        self.currency = customtkinter.CTkComboBox(self.expense_frame, values=CURRENCIES)
-        self.currency.grid(row=1, column=2)
+
+        self.expense_desc_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense description")
+        self.expense_desc_lbl.grid(row=0, column=0)
+        self.exp_desc_entry = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter description here",
+                                                     width=ENTRY_WIDTH, height=ENTRY_HEIGHT)
+        self.exp_desc_entry.grid(row=1, column=0, columnspan=2, padx=3, pady=3)
+
+        self.exp_type_lbl = customtkinter.CTkLabel(self.expense_frame, text="Choose expense type")
+        self.exp_type_lbl.grid(row=0, column=2)
+        self.expense_type = customtkinter.CTkComboBox(self.expense_frame, values=EXPENSE_TYPES,
+                                                      width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT)
+        self.expense_type.grid(row=1, column=2)
+        self.expense_amt_entry = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter expense amount here",
+                                                        width=ENTRY_WIDTH, height=ENTRY_HEIGHT)
+        self.expense_amt_entry.grid(row=3, column=0, columnspan=2, padx=3, pady=3)
+        self.currency = customtkinter.CTkComboBox(self.expense_frame, values=CURRENCIES,
+                                                  width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT)
+        self.currency.grid(row=3, column=2)
 
         # buttons
         self.button_frame = customtkinter.CTkFrame(self)
