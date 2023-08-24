@@ -24,24 +24,31 @@ class App(customtkinter.CTk):
         self.date_pick = DateEntry(self.date_frame)
         self.date_pick.grid(row=0, column=0)
 
-        # create expense frame
+        # expense frame
         self.expense_frame = customtkinter.CTkFrame(self)
         self.expense_frame.pack(expand=True, fill=tk.BOTH)
 
-        self.expense_desc_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense description")
-        self.expense_desc_lbl.grid(row=0, column=0)
+        self.expense_desc_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense description",
+                                                       anchor='w')
+        self.expense_desc_lbl.grid(row=0, column=0, padx=10, sticky=tk.NSEW)
         self.exp_desc_entry = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter description here",
                                                      width=ENTRY_WIDTH, height=ENTRY_HEIGHT)
         self.exp_desc_entry.grid(row=1, column=0, columnspan=2, padx=3, pady=3)
 
-        self.exp_type_lbl = customtkinter.CTkLabel(self.expense_frame, text="Choose expense type")
-        self.exp_type_lbl.grid(row=0, column=2)
+        self.exp_type_lbl = customtkinter.CTkLabel(self.expense_frame, text="Choose expense type", anchor='w')
+        self.exp_type_lbl.grid(row=0, column=2, sticky=tk.NSEW, padx=10)
         self.expense_type = customtkinter.CTkComboBox(self.expense_frame, values=EXPENSE_TYPES,
                                                       width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT)
         self.expense_type.grid(row=1, column=2)
+
+        self.expense_amt_lbl = customtkinter.CTkLabel(self.expense_frame, text="Amount expense", anchor='w')
+        self.expense_amt_lbl.grid(row=2, column=0, sticky=tk.NSEW, padx=10)
         self.expense_amt_entry = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter expense amount here",
                                                         width=ENTRY_WIDTH, height=ENTRY_HEIGHT)
         self.expense_amt_entry.grid(row=3, column=0, columnspan=2, padx=3, pady=3)
+
+        self.currency_lbl = customtkinter.CTkLabel(self.expense_frame, text="Choose currency used", anchor='w')
+        self.currency_lbl.grid(row=2, column=2, sticky=tk.NSEW, padx=10)
         self.currency = customtkinter.CTkComboBox(self.expense_frame, values=CURRENCIES,
                                                   width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT)
         self.currency.grid(row=3, column=2)
