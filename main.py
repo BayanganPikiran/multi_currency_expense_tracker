@@ -24,6 +24,14 @@ class App(customtkinter.CTk):
         self.date_pick = DateEntry(self.date_frame)
         self.date_pick.grid(row=0, column=0)
 
+        # create expense frame
+        self.expense_frame = customtkinter.CTkFrame(self)
+        self.expense_frame.pack(expand=True, fill=tk.BOTH)
+        self.exp_desc_entry = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter description here")
+        self.exp_desc_entry.grid(row=0, column=0, columnspan=2)
+        self.expense_type = customtkinter.CTkComboBox(self.expense_frame, values=EXPENSE_TYPES)
+        self.expense_type.grid(row=0, column=2)
+
 
 
 
