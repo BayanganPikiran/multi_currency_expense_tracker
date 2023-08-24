@@ -31,6 +31,8 @@ class App(customtkinter.CTk):
         self.exp_desc_entry.grid(row=0, column=0, columnspan=2)
         self.expense_type = customtkinter.CTkComboBox(self.expense_frame, values=EXPENSE_TYPES)
         self.expense_type.grid(row=0, column=2)
+        self.expense_amount = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter expense amount here")
+        self.expense_amount.grid(row=1, column=0, columnspan=2)
 
 
 
