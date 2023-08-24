@@ -36,6 +36,14 @@ class App(customtkinter.CTk):
         self.currency = customtkinter.CTkComboBox(self.expense_frame, values=CURRENCIES)
         self.currency.grid(row=1, column=2)
 
+        # buttons
+        self.button_frame = customtkinter.CTkFrame(self)
+        self.button_frame.pack(expand=True, fill=tk.BOTH)
+        self.save_btn = customtkinter.CTkButton(self.button_frame, text="Save Expense", command=print("save expense"))
+        self.save_btn.grid(row=2, column=0)
+        self.query_btn = customtkinter.CTkButton(self.button_frame, text="Create Query", command=print("Query deez nuts!"))
+        self.query_btn.grid(row=2, column=1)
+
 
 
 
