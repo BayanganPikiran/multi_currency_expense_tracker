@@ -4,6 +4,7 @@ from constants import *
 from tkcalendar import Calendar, DateEntry
 
 
+
 customtkinter.set_appearance_mode("dark")
 
 
@@ -16,40 +17,45 @@ class App(customtkinter.CTk):
         self.title("Watch Your Dong")
 
         # configure grid layout
-        self.grid_rowconfigure(0, weight=0)
-        self.grid_rowconfigure((1, 2, 3), weight=1)
+        # self.grid_rowconfigure(0, weight=0)
+        # self.grid_rowconfigure((1, 2, 3), weight=1)
 
         # create date frame and widgets
-        self.date_frame = customtkinter.CTkFrame(self)
+        self.date_frame = customtkinter.CTkFrame(self, width=DATE_FRAME_WIDTH, height=DATE_FRAME_HEIGHT)
         self.date_frame.pack(expand=True, fill=tk.BOTH)
+        self.date_pick_lbl = customtkinter.CTkLabel(self.date_frame, text='Expense date:', font=LABEL_FONT)
+        self.date_pick_lbl.grid(row=0, column=0, padx=8, pady=5)
         self.date_pick = DateEntry(self.date_frame, font=DATE_ENTRY_FONT)
-        self.date_pick.grid(row=0, column=0)
+        self.date_pick.grid(row=0, column=1, padx=8, pady=5)
 
         # expense frame
         self.expense_frame = customtkinter.CTkFrame(self)
         self.expense_frame.pack(expand=True, fill=tk.BOTH)
         # expense description
         self.expense_desc_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense description",
-                                                       anchor='w')
+                                                       anchor='w', font=LABEL_FONT)
         self.expense_desc_lbl.grid(row=0, column=0, padx=10, sticky=tk.NSEW)
         self.exp_desc_entry = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter description here",
                                                      width=ENTRY_WIDTH, height=ENTRY_HEIGHT)
         self.exp_desc_entry.grid(row=1, column=0, columnspan=2, padx=3, pady=3)
         # expense type
-        self.exp_type_lbl = customtkinter.CTkLabel(self.expense_frame, text="Choose expense type", anchor='w')
+        self.exp_type_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense type",
+                                                   anchor='w', font=LABEL_FONT)
         self.exp_type_lbl.grid(row=0, column=2, sticky=tk.NSEW, padx=10)
         self.expense_type = customtkinter.CTkComboBox(self.expense_frame, values=EXPENSE_TYPES,
                                                       width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT)
         self.expense_type.grid(row=1, column=2)
         # expense amount
-        self.expense_amt_lbl = customtkinter.CTkLabel(self.expense_frame, text="Amount expense", anchor='w')
-        self.expense_amt_lbl.grid(row=2, column=0, sticky=tk.NSEW, padx=10)
+        self.expense_amt_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense amount",
+                                                      anchor='w', font=LABEL_FONT)
+        self.expense_amt_lbl.grid(row=2, column=0, sticky=tk.NSEW, padx=10, pady=5)
         self.expense_amt_entry = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter expense amount here",
                                                         width=ENTRY_WIDTH, height=ENTRY_HEIGHT)
         self.expense_amt_entry.grid(row=3, column=0, columnspan=2, padx=3, pady=3)
         # choose currency for expense
-        self.currency_lbl = customtkinter.CTkLabel(self.expense_frame, text="Choose currency used", anchor='w')
-        self.currency_lbl.grid(row=2, column=2, sticky=tk.NSEW, padx=10)
+        self.currency_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense currency",
+                                                   anchor='w', font=LABEL_FONT)
+        self.currency_lbl.grid(row=2, column=2, sticky=tk.NSEW, padx=10, pady=5)
         self.currency = customtkinter.CTkComboBox(self.expense_frame, values=CURRENCIES,
                                                   width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT)
         self.currency.grid(row=3, column=2)
@@ -58,10 +64,10 @@ class App(customtkinter.CTk):
         self.button_frame = customtkinter.CTkFrame(self)
         self.button_frame.pack(expand=True, fill=tk.BOTH)
         self.save_btn = customtkinter.CTkButton(self.button_frame, text="Save Expense",
-                                                width=BUTTON_WIDTH, height=BUTTON_HEIGHT)
+                                                width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT)
         self.save_btn.grid(row=2, column=0, padx=3)
         self.query_btn = customtkinter.CTkButton(self.button_frame, text="Create Query",
-                                                 width=BUTTON_WIDTH, height=BUTTON_HEIGHT)
+                                                 width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT)
         self.query_btn.grid(row=2, column=1, padx=3)
 
 

@@ -2,11 +2,17 @@
 TILE_LENGTH = 8
 
 # App Dimensions
-APP_NUM_ROWS = 48
+APP_NUM_ROWS = 30
 APP_NUM_COLS = 64
 
 APP_WIDTH = TILE_LENGTH * APP_NUM_COLS
 APP_HEIGHT = TILE_LENGTH * APP_NUM_ROWS
+
+# Frame Dimensions
+DATE_FRAME_ROWS = 5
+DATE_FRAME_COLS = 64
+DATE_FRAME_WIDTH = TILE_LENGTH * DATE_FRAME_COLS
+DATE_FRAME_HEIGHT = TILE_LENGTH * DATE_FRAME_ROWS
 
 # Widget Dimensions
 ENTRY_ROWS = 5
@@ -29,4 +35,6 @@ EXPENSE_TYPES = ['cheetos', 'fart porn']
 CURRENCIES = ['IDR', 'THB', 'USD', 'VND']
 
 # Fonts
-DATE_ENTRY_FONT = ("Roboto", 16)
+BUTTON_FONT = ('Helvetica', 16, 'bold')
+LABEL_FONT = ('Helvetica', 14, 'bold')
+DATE_ENTRY_FONT = ('Helvetica', 12)
