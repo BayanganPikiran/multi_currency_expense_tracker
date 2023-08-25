@@ -31,7 +31,8 @@ BUTTON_WIDTH = TILE_LENGTH * BUTTON_COLS
 BUTTON_HEIGHT = TILE_LENGTH * BUTTON_ROWS
 
 # Expenses
-EXPENSE_TYPES = ['cheetos', 'fart porn']
+EXPENSE_TYPES = ['electricity', 'entertainment', 'fruit', 'groceries', 'household items', 'internet', 'misc', 'petrol',
+                 'rent', 'resto', 'supplements', 'travel', 'visas']
 CURRENCIES = ['IDR', 'THB', 'USD', 'VND']
 
 # Fonts
