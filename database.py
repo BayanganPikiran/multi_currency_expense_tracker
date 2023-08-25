@@ -10,6 +10,9 @@ class Database:
         self.category_table = self.create_category_table()
 
     def create_category_table(self):
-        pass
-
+        category_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS expense_category(
+            category_id INTEGER(10) PRIMARY KEY AUTOINCREMENT,
+            category_name TEXT(30) NOT NULL""")
+        self.conn.commit()
+        return category_table
 
