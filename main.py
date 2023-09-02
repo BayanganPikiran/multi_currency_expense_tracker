@@ -65,7 +65,8 @@ class App(customtkinter.CTk):
         self.button_frame.pack(expand=True, fill=tk.BOTH)
         self.save_btn = customtkinter.CTkButton(self.button_frame, text="Save Expense", width=BUTTON_WIDTH,
                                                 height=BUTTON_HEIGHT, font=BUTTON_FONT,
-                                                command=lambda: self.choose_date())
+                                                command=lambda: [self.choose_date(), self.get_expense_amt(),
+                                                                 self.get_expense_desc(), self.get_currency()])
         self.save_btn.grid(row=2, column=0, padx=3)
         self.query_btn = customtkinter.CTkButton(self.button_frame, text="Create Query",
                                                  width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT)
@@ -75,6 +76,26 @@ class App(customtkinter.CTk):
         chosen_date = self.date_pick.get_date()
         print(chosen_date)
         return chosen_date
+
+    def get_expense_amt(self):
+        expense_amt = self.expense_amt_entry.get()
+        print(expense_amt)
+        return expense_amt
+
+    def get_expense_desc(self):
+        expense_desc = self.exp_desc_entry.get()
+        print(expense_desc)
+        return expense_desc
+
+    def get_currency(self):
+        chosen_currency = self.currency.get()
+        print(chosen_currency)
+        return chosen_currency
+
+    def get_exp_type(self):
+        exp_type = self.expense_type.get()
+        print(exp_type)
+        return exp_type
 
 
 if __name__ == '__main__':
