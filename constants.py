@@ -32,7 +32,7 @@ BUTTON_HEIGHT = TILE_LENGTH * BUTTON_ROWS
 
 # Expenses
 EXPENSE_TYPES = ['electricity', 'entertainment', 'fruit', 'groceries', 'household items', 'internet', 'misc', 'petrol',
-                 'rent', 'resto', 'supplements', 'travel', 'visas']
+                 'rent', 'restaurant', 'supplements', 'travel', 'visas']
 CURRENCIES = ['IDR', 'THB', 'USD', 'VND']
 
 # Fonts
