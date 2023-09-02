@@ -2,8 +2,7 @@ import tkinter as tk
 import customtkinter
 from constants import *
 from tkcalendar import Calendar, DateEntry
-
-
+from database import Database
 
 customtkinter.set_appearance_mode("dark")
 
@@ -49,7 +48,8 @@ class App(customtkinter.CTk):
         self.expense_amt_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense amount",
                                                       anchor='w', font=LABEL_FONT)
         self.expense_amt_lbl.grid(row=2, column=0, sticky=tk.NSEW, padx=10, pady=5)
-        self.expense_amt_entry = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter expense amount here",
+        self.expense_amt_entry = customtkinter.CTkEntry(self.expense_frame,
+                                                        placeholder_text="Enter expense amount here",
                                                         width=ENTRY_WIDTH, height=ENTRY_HEIGHT)
         self.expense_amt_entry.grid(row=3, column=0, columnspan=2, padx=3, pady=3)
         # choose currency for expense
@@ -63,15 +63,18 @@ class App(customtkinter.CTk):
         # buttons
         self.button_frame = customtkinter.CTkFrame(self)
         self.button_frame.pack(expand=True, fill=tk.BOTH)
-        self.save_btn = customtkinter.CTkButton(self.button_frame, text="Save Expense",
-                                                width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT)
+        self.save_btn = customtkinter.CTkButton(self.button_frame, text="Save Expense", width=BUTTON_WIDTH,
+                                                height=BUTTON_HEIGHT, font=BUTTON_FONT,
+                                                command=lambda: self.choose_date())
         self.save_btn.grid(row=2, column=0, padx=3)
         self.query_btn = customtkinter.CTkButton(self.button_frame, text="Create Query",
                                                  width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT)
         self.query_btn.grid(row=2, column=1, padx=3)
 
-
-
+    def choose_date(self):
+        chosen_date = self.date_pick.get_date()
+        print(chosen_date)
+        return chosen_date
 
 
 if __name__ == '__main__':

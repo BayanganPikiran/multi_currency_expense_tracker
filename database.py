@@ -33,9 +33,9 @@ class Database:
         self.conn.commit()
         return expense_table
 
-    def record_expense(self, date, amt, curr, ctg, desc):
+    def record_expense(self, date, amt, curr, ctgy, desc):
         self.cursor.execute("INSERT INTO Expense_record(date, amount, currency, category_fk, description)"
-                            " VALUES(?, ?, ?, ?, ?)", (date, amt, curr, ctg, desc))
+                            " VALUES(?, ?, ?, ?, ?)", (date, amt, curr, ctgy, desc))
         self.conn.commit()
 
     def add_expense_category(self, new_category=None):
