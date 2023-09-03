@@ -65,12 +65,13 @@ class App(customtkinter.CTk):
         self.button_frame.pack(expand=True, fill=tk.BOTH)
         self.save_btn = customtkinter.CTkButton(self.button_frame, text="Save Expense", width=BUTTON_WIDTH,
                                                 height=BUTTON_HEIGHT, font=BUTTON_FONT,
-                                                command=lambda: self.get_expense_info())
+                                                command=lambda: self.create_save_toplevel())
         self.save_btn.grid(row=2, column=0, padx=3)
         self.query_btn = customtkinter.CTkButton(self.button_frame, text="Create Query",
                                                  width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT)
         self.query_btn.grid(row=2, column=1, padx=3)
 
+    # field functions
     def get_expense_info(self):
         self.choose_date()
         self.get_expense_amt()
@@ -102,6 +103,34 @@ class App(customtkinter.CTk):
         exp_type = self.expense_type.get()
         print(exp_type)
         return exp_type
+
+    def create_save_toplevel(self):
+        # toplevel window
+        sv_tl = customtkinter.CTkToplevel()
+        sv_tl.geometry('200x150')
+        sv_tl.title('Save Expense')
+        sv_tl.wm_transient(self)
+        # toplevel frames
+        label_frame = customtkinter.CTkFrame(sv_tl)
+        label_frame.pack(expand=True, fill=tk.BOTH)
+        btn_frame = customtkinter.CTkFrame(sv_tl)
+        btn_frame.pack(expand=True, fill=tk.BOTH)
+        # toplevel widgets
+        tl_date = customtkinter.CTkLabel(label_frame, anchor='center', justify=tk.CENTER, text=f"Date: {self.choose_date()}",
+                                         font=LABEL_FONT)
+        tl_date.grid(row=0, column=0)
+        tl_exp_desc = customtkinter.CTkLabel(label_frame, text=f"Description: {self.get_expense_desc()}",
+                                             font=LABEL_FONT, wraplength=380, padx=10)
+        tl_exp_desc.grid(row=1, column=0)
+        tl_exp_type = customtkinter.CTkLabel(label_frame, padx=10, text=f"Expense type: {self.get_expense_type()}",
+                                             font=LABEL_FONT)
+        tl_exp_type.grid(row=2, column=0)
+        tl_exp_amt = customtkinter.CTkLabel(label_frame, anchor='w', text=f"Amount: {self.get_currency()} {self.get_expense_amt()}",
+                                            font=LABEL_FONT)
+        tl_exp_amt.grid(row=3, column=0)
+        tl_btn = customtkinter.CTkButton(btn_frame, text="Save Expense",
+                                         command=lambda: [self.get_expense_info(), sv_tl.destroy()])
+        tl_btn.pack(expand=True, fill=tk.BOTH)
 
 
 if __name__ == '__main__':
