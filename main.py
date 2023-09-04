@@ -25,6 +25,7 @@ class App(customtkinter.CTk):
         self.date_pick_lbl = customtkinter.CTkLabel(self.date_frame, text='Expense date:', font=LABEL_FONT)
         self.date_pick_lbl.grid(row=0, column=0, padx=8, pady=5)
         self.date_pick = DateEntry(self.date_frame, font=DATE_ENTRY_FONT)
+        self.date_var = self.date_pick.get_date()
         self.date_pick.grid(row=0, column=1, padx=8, pady=5)
 
         # expense frame
@@ -34,30 +35,38 @@ class App(customtkinter.CTk):
         self.expense_desc_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense description",
                                                        anchor='w', font=LABEL_FONT)
         self.expense_desc_lbl.grid(row=0, column=0, padx=10, sticky=tk.NSEW)
+        self.exp_desc_var = tk.StringVar()
         self.exp_desc_entry = customtkinter.CTkEntry(self.expense_frame, placeholder_text="Enter description here",
-                                                     width=ENTRY_WIDTH, height=ENTRY_HEIGHT)
+                                                     width=ENTRY_WIDTH, height=ENTRY_HEIGHT,
+                                                     textvariable=self.exp_desc_var)
         self.exp_desc_entry.grid(row=1, column=0, columnspan=2, padx=3, pady=3)
+
         # expense type
         self.exp_type_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense type",
                                                    anchor='w', font=LABEL_FONT)
         self.exp_type_lbl.grid(row=0, column=2, sticky=tk.NSEW, padx=10)
+        self.exp_type_var = tk.StringVar()
         self.expense_type = customtkinter.CTkComboBox(self.expense_frame, values=EXPENSE_TYPES,
-                                                      width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT)
+                                                      width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT,
+                                                      variable=self.exp_type_var)
         self.expense_type.grid(row=1, column=2)
         # expense amount
         self.expense_amt_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense amount",
                                                       anchor='w', font=LABEL_FONT)
         self.expense_amt_lbl.grid(row=2, column=0, sticky=tk.NSEW, padx=10, pady=5)
+        self.exp_amt_var = tk.StringVar()
         self.expense_amt_entry = customtkinter.CTkEntry(self.expense_frame,
                                                         placeholder_text="Enter expense amount here",
-                                                        width=ENTRY_WIDTH, height=ENTRY_HEIGHT)
+                                                        width=ENTRY_WIDTH, height=ENTRY_HEIGHT,
+                                                        textvariable=self.exp_amt_var)
         self.expense_amt_entry.grid(row=3, column=0, columnspan=2, padx=3, pady=3)
         # choose currency for expense
         self.currency_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense currency",
                                                    anchor='w', font=LABEL_FONT)
         self.currency_lbl.grid(row=2, column=2, sticky=tk.NSEW, padx=10, pady=5)
+        self.curr_var = tk. StringVar()
         self.currency = customtkinter.CTkComboBox(self.expense_frame, values=CURRENCIES,
-                                                  width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT)
+                                                  width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT, variable=self.curr_var)
         self.currency.grid(row=3, column=2)
 
         # buttons
@@ -72,37 +81,37 @@ class App(customtkinter.CTk):
         self.query_btn.grid(row=2, column=1, padx=3)
 
     # field functions
-    def get_expense_info(self):
-        self.choose_date()
-        self.get_expense_amt()
-        self.get_expense_desc()
-        self.get_currency()
-        self.get_expense_type()
-
-    def choose_date(self):
-        chosen_date = self.date_pick.get_date()
-        print(chosen_date)
-        return chosen_date
-
-    def get_expense_amt(self):
-        expense_amt = self.expense_amt_entry.get()
-        print(expense_amt)
-        return expense_amt
-
-    def get_expense_desc(self):
-        expense_desc = self.exp_desc_entry.get()
-        print(expense_desc)
-        return expense_desc
-
-    def get_currency(self):
-        chosen_currency = self.currency.get()
-        print(chosen_currency)
-        return chosen_currency
-
-    def get_expense_type(self):
-        exp_type = self.expense_type.get()
-        print(exp_type)
-        return exp_type
+    # def get_expense_info(self):
+    #     print(self.choose_date())
+    #     print(self.get_expense_amt())
+    #     self.get_expense_desc()
+    #     self.get_currency()
+    #     self.get_expense_type()
+    #
+    # def choose_date(self):
+    #     chosen_date = self.date_pick.get_date()
+    #     # print(chosen_date)
+    #     return chosen_date
+    #
+    # def get_expense_amt(self):
+    #     expense_amt = self.expense_amt_entry.get()
+    #     # print(expense_amt)
+    #     return expense_amt
+    #
+    # def get_expense_desc(self):
+    #     expense_desc = self.exp_desc_entry.get()
+    #     # print(expense_desc)
+    #     return expense_desc
+    #
+    # def get_currency(self):
+    #     chosen_currency = self.currency.get()
+    #     # print(chosen_currency)
+    #     return chosen_currency
+    #
+    # def get_expense_type(self):
+    #     exp_type = self.expense_type.get()
+    #     # print(exp_type)
+    #     return exp_type
 
     def create_save_toplevel(self):
         # toplevel window
@@ -128,9 +137,9 @@ class App(customtkinter.CTk):
         tl_exp_amt = customtkinter.CTkLabel(label_frame, anchor='w', text=f"Amount: {self.get_currency()} {self.get_expense_amt()}",
                                             font=LABEL_FONT)
         tl_exp_amt.grid(row=3, column=0)
-        tl_btn = customtkinter.CTkButton(btn_frame, text="Save Expense",
-                                         command=lambda: [self.get_expense_info(), sv_tl.destroy()])
+        tl_btn = customtkinter.CTkButton(btn_frame, text="Save Expense")
         tl_btn.pack(expand=True, fill=tk.BOTH)
+        tl_btn.configure(command=lambda: (self.get_expense_info(), sv_tl.destroy()))
 
 
 if __name__ == '__main__':
