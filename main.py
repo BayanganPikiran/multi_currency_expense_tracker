@@ -1,8 +1,13 @@
 import tkinter as tk
+import requests
 import customtkinter
 from constants import *
 from tkcalendar import Calendar, DateEntry
+# pip install forex-python
+from forex_python.converter import CurrencyCodes, CurrencyRates, RatesNotAvailableError
 from database import Database
+
+# --------------------------------------------
 
 customtkinter.set_appearance_mode("dark")
 
@@ -64,7 +69,7 @@ class App(customtkinter.CTk):
         self.currency_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense currency",
                                                    anchor='w', font=LABEL_FONT)
         self.currency_lbl.grid(row=2, column=2, sticky=tk.NSEW, padx=10, pady=5)
-        self.curr_var = tk. StringVar()
+        self.curr_var = tk.StringVar()
         self.currency = customtkinter.CTkComboBox(self.expense_frame, values=CURRENCIES,
                                                   width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT, variable=self.curr_var)
         self.currency.grid(row=3, column=2)
@@ -87,31 +92,16 @@ class App(customtkinter.CTk):
         print(f"Expense amount: {self.curr_var.get()} {self.exp_amt_var.get()}")
         print(f"Description: {self.exp_desc_var.get()}")
         print(f"Expense type: {self.exp_type_var.get()}")
-    #
-    # def choose_date(self):
-    #     chosen_date = self.date_pick.get_date()
-    #     # print(chosen_date)
-    #     return chosen_date
-    #
-    # def get_expense_amt(self):
-    #     expense_amt = self.expense_amt_entry.get()
-    #     # print(expense_amt)
-    #     return expense_amt
-    #
-    # def get_expense_desc(self):
-    #     expense_desc = self.exp_desc_entry.get()
-    #     # print(expense_desc)
-    #     return expense_desc
-    #
-    # def get_currency(self):
-    #     chosen_currency = self.currency.get()
-    #     # print(chosen_currency)
-    #     return chosen_currency
-    #
-    # def get_expense_type(self):
-    #     exp_type = self.expense_type.get()
-    #     # print(exp_type)
-    #     return exp_type
+
+    def convert_to_usd(self):
+        base_cur = self.curr_var.get()
+        print(base_cur)
+        value = float(self.exp_amt_var.get())
+        c = CurrencyRates()
+        ex_rate = c.get_rate(base_cur, 'USD')
+        usd_amt = round(value * ex_rate, 2)
+        print(f"${usd_amt}")
+
 
     def create_save_toplevel(self):
         date = self.date_var
@@ -122,7 +112,7 @@ class App(customtkinter.CTk):
 
         # toplevel window
         sv_tl = customtkinter.CTkToplevel()
-        sv_tl.geometry('200x150')
+        sv_tl.geometry('300x150')
         sv_tl.title('Save Expense')
         sv_tl.wm_transient(self)
         # toplevel frames
@@ -133,19 +123,23 @@ class App(customtkinter.CTk):
         # toplevel widgets
         tl_date = customtkinter.CTkLabel(label_frame, anchor='center', justify=tk.CENTER, text=f"Date: {date}",
                                          font=LABEL_FONT)
-        tl_date.grid(row=0, column=0)
+        # tl_date.grid(row=0, column=0)
+        tl_date.pack()
         tl_exp_desc = customtkinter.CTkLabel(label_frame, text=f"Description: {description}",
                                              font=LABEL_FONT, wraplength=380, padx=10)
-        tl_exp_desc.grid(row=1, column=0)
+        # tl_exp_desc.grid(row=1, column=0)
+        tl_exp_desc.pack(expand=True, fill=tk.BOTH)
         tl_exp_type = customtkinter.CTkLabel(label_frame, padx=10, text=f"Expense type: {exp_type}",
                                              font=LABEL_FONT)
-        tl_exp_type.grid(row=2, column=0)
-        tl_exp_amt = customtkinter.CTkLabel(label_frame, anchor='w', text=f"Amount: {currency} {amount}",
+        tl_exp_type.pack(expand=True, fill=tk.BOTH)
+        # tl_exp_type.grid(row=2, column=0)
+        tl_exp_amt = customtkinter.CTkLabel(label_frame, text=f"Amount: {currency} {amount}",
                                             font=LABEL_FONT)
-        tl_exp_amt.grid(row=3, column=0)
+        tl_exp_amt.pack(expand=True, fill=tk.BOTH)
+        # tl_exp_amt.grid(row=3, column=0)
         tl_btn = customtkinter.CTkButton(btn_frame, text="Save Expense")
         tl_btn.pack(expand=True, fill=tk.BOTH)
-        tl_btn.configure(command=lambda: (self.get_expense_info(), sv_tl.destroy()))
+        tl_btn.configure(command=lambda: (self.get_expense_info(), self.convert_to_usd(), sv_tl.destroy()))
 
 
 if __name__ == '__main__':
