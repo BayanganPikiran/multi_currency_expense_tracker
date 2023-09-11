@@ -102,9 +102,14 @@ class App(customtkinter.CTk, SaveToplevel):
         usd_amt = round(value * ex_rate, 2)
         print(f"${usd_amt}")
 
+    def save_expense(self):
+        self.get_expense_info()
+        self.convert_to_usd()
+        self.destroy()
+
     def create_save_toplevel(self):
         # get parameters for SaveToplevel
-        date = self.date_var.get()
+        date = self.date_var
         description = self.exp_desc_var.get()
         exp_type = self.exp_type_var.get()
         currency = self.curr_var.get()
@@ -115,8 +120,7 @@ class App(customtkinter.CTk, SaveToplevel):
         save_button = customtkinter.CTkButton(save_toplevel, text="Save Expense", command=self.save_expense)
         save_button.pack(in_=save_toplevel.btn_frame, expand=True, fill=ctk.BOTH)
 
-    def save_expense(self):
-        pass
+
 
 
     # def create_save_toplevel(self):
