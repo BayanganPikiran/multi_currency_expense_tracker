@@ -31,8 +31,8 @@ BUTTON_WIDTH = TILE_LENGTH * BUTTON_COLS
 BUTTON_HEIGHT = TILE_LENGTH * BUTTON_ROWS
 
 # Expenses
-EXPENSE_TYPES = ['electricity', 'entertainment', 'fruit', 'groceries', 'health', 'household items', 'internet', 'misc', 'petrol',
-                 'rent', 'restaurant', 'supplements', 'travel', 'visas']
+EXPENSE_TYPES = ['electricity', 'entertainment', 'fruit', 'groceries', 'health', 'household items',
+                 'internet', 'misc', 'petrol', 'rent', 'restaurant', 'supplements', 'travel', 'visas']
 CURRENCIES = ['BND', 'CNY', 'HKD', 'IDR', 'INR', 'JPY', 'KRW', 'KHR', 'LAK',
               'MMK', 'MYR', 'PHP', 'SGD', 'THB', 'TWD', 'USD', 'VND']
 

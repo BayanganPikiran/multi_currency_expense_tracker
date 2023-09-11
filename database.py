@@ -11,39 +11,44 @@ class Database:
         self.expense_record_table = self.create_expense_table()
         self.add_expense_category()
 
-
     def create_category_table(self):
         category_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Expense_category(
-            category_id INTEGER(10) PRIMARY KEY AUTOINCREMENT,
-            category_name TEXT(30) NOT NULL),
-            UNIQUE category_name);""")
+            category_id integer PRIMARY KEY AUTOINCREMENT,
+            category_name text NOT NULL UNIQUE)""")
         self.conn.commit()
         return category_table
 
+    # accounts_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS accounts(
+    #             id integer PRIMARY KEY AUTOINCREMENT,
+    #             website text NOT NULL,
+    #             username text NOT NULL,
+    #             password text,
+    #             UNIQUE(website, username))""")
+
     def create_expense_table(self):
         expense_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Expense_record(
-            expense_id INTEGER(10) PRIMARY KEY AUTOINCREMENT, 
-            date TEXT(30) NUT NULL,
+            expense_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            date TEXT NOT NULL,
             amount DECIMAL(10,2) NOT NULL,
-            currency TEXT(3) NOT NULL, 
-            category_fk INTEGER(10),
-            description TEXT(200),
+            currency TEXT NOT NULL, 
+            category_fk INTEGER,
+            description TEXT,
             FOREIGN KEY(category_fk) REFERENCES Expense_category(category_id));             
         """)
         self.conn.commit()
         return expense_table
 
-    def record_expense(self, date, amt, curr, ctgy, desc):
-        self.cursor.execute("INSERT INTO Expense_record(date, amount, currency, category_fk, description)"
-                            " VALUES(?, ?, ?, ?, ?)", (date, amt, curr, ctgy, desc))
+    def record_expense(self, date, amt, curr, usd, ctg, desc):
+        self.cursor.execute("INSERT INTO Expense_record(date, amount, currency, usd, category_fk, description)"
+                            " VALUES(?, ?, ?, ?, ?)", (date, amt, curr, usd, ctg, desc))
         self.conn.commit()
 
     def add_expense_category(self, new_category=None):
         # List of categories to be added
         categories_to_add = [
-            'rent', 'electricity', 'internet', 'groceries', 'restaurant',
-            'fruit', 'household_supplies', 'supplements', 'entertainment',
-            'petrol', 'travel', 'visas', 'miscellaneous'
+            'electricity', 'entertainment', 'fruit', 'groceries', 'health', 'household_items',
+            'internet', 'misc', 'petrol', 'rent', 'restaurant', 'supplements',  'travel',
+            'visas',
         ]
 
         if new_category:
