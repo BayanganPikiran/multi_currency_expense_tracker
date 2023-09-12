@@ -6,6 +6,7 @@ from tkcalendar import Calendar, DateEntry
 from forex_python.converter import CurrencyCodes, CurrencyRates, RatesNotAvailableError
 from database import Database
 from toplevel import *
+import os
 
 # --------------------------------------------
 
@@ -20,7 +21,6 @@ class App(customtkinter.CTk, Database):
         # configure window
         self.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
         self.title("Watch Your Dong")
-
 
         # create date frame and widgets
         self.date_frame = customtkinter.CTkFrame(self, width=DATE_FRAME_WIDTH, height=DATE_FRAME_HEIGHT)
@@ -91,30 +91,70 @@ class App(customtkinter.CTk, Database):
         print(f"Description: {self.exp_desc_var.get()}")
         print(f"Expense type: {self.exp_type_var.get()}")
 
-    def convert_to_usd(self):
+    def convert_to_usd(self):  # doesn't have all rates
         base_cur = self.curr_var.get()
         print(base_cur)
         value = float(self.exp_amt_var.get())
         c = CurrencyRates()
+        print(c.get_rates('USD'))
         ex_rate = c.get_rate(base_cur, 'USD')
         usd_amt = round(value * ex_rate, 2)
         print(f"${usd_amt}")
+        return usd_amt
 
-    # def save_expense(self):
-    #     self.get_expense_info()
-    #     self.convert_to_usd()
-    #     self.destroy()
+    import os
 
+    def log_expense_decorator(log_file="expense_log.txt"):
+        def decorator(func):
+            def wrapper(self, *args, **kwargs):
+                # Generate a unique ID for each day
+                if not hasattr(self, "daily_expense_id"):
+                    self.daily_expense_id = 1
+                else:
+                    self.daily_expense_id += 1
+
+                # Get the relevant information
+                date = self.date_var
+                amt = float(self.exp_amt_var.get())
+                curr = self.curr_var.get()
+                usd = self.convert_to_usd()
+                typ = self.exp_type_var.get()
+                desc = self.exp_desc_var.get()
+
+                # Construct the log message
+                log_message = f"{self.daily_expense_id}: {date}, {curr} {amt}, ${usd}, type: {typ}, description {desc}"
+
+                # Check if the log file exists, if not, create it
+                if not os.path.exists(log_file):
+                    with open(log_file, "w") as f:
+                        f.write("Expense Log\n")
+
+                # Append the log message to the log file
+                with open(log_file, "a") as f:
+                    f.write(log_message + "\n")
+
+                # Call the original function
+                result = func(self, *args, **kwargs)
+
+                return result
+
+            return wrapper
+
+        return decorator
+
+    @log_expense_decorator()
     def save_expense(self):
         date = self.date_var
         amt = float(self.exp_amt_var.get())
         curr = self.curr_var.get()
-        ctg = self.exp_type_var.get()  # You may need to retrieve the category_fk based on the expense type.
+        usd = self.convert_to_usd()
+        typ = self.exp_type_var.get()  # You may need to retrieve the category_fk based on the expense type.
         desc = self.exp_desc_var.get()
 
-        self.db.record_expense(date, amt, curr, ctg, desc)
+        self.record_expense(date, amt, curr, usd, typ, desc)
         self.get_expense_info()
         self.convert_to_usd()
+        self.confirm_record_input()
         self.destroy()
 
     def create_save_toplevel(self):
@@ -131,9 +171,7 @@ class App(customtkinter.CTk, Database):
         save_button = customtkinter.CTkButton(save_toplevel, text="Save Expense", command=self.save_expense)
         save_button.pack(in_=save_toplevel.btn_frame, expand=True, fill=ctk.BOTH)
 
+
 if __name__ == '__main__':
     app = App()
     app.mainloop()
-    # print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -32,12 +32,12 @@ class Database:
         self.conn.commit()
         return expense_table
 
-    def record_expense(self, date, amt, curr, usd, ctg, desc):
+    def record_expense(self, date, amt, curr, usd, typ, desc):
         try:
             self.cursor.execute(
                 """INSERT INTO Expense_record(date, amount, currency, usd, type_fk, description)
                    VALUES (?, ?, ?, ?, ?, ?)""",
-                (date, amt, curr, usd, ctg, desc)
+                (date, amt, curr, usd, typ, desc)
             )
             self.conn.commit()
             print("Expense record saved successfully.")
