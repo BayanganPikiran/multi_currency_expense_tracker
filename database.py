@@ -9,64 +9,68 @@ class Database:
         self.cursor = self.conn.cursor()
         self.expense_type_table = self.create_exp_type_table()
         self.expense_record_table = self.create_expense_table()
-        self.add_expense_category()
+        self.add_expense_type()
 
     def create_exp_type_table(self):
         category_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Expense_type(
-            category_id integer PRIMARY KEY AUTOINCREMENT,
-            category_name text NOT NULL UNIQUE)""")
+            type_id integer PRIMARY KEY AUTOINCREMENT,
+            type_name text NOT NULL UNIQUE)""")
         self.conn.commit()
         return category_table
-
-
 
     def create_expense_table(self):
         expense_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Expense_record(
             expense_id INTEGER PRIMARY KEY AUTOINCREMENT, 
             date TEXT NOT NULL,
             amount DECIMAL(10,2) NOT NULL,
-            currency TEXT NOT NULL, 
-            category_fk INTEGER,
+            currency TEXT NOT NULL,
+            usd TEXT NOT NULL, 
+            type_fk INTEGER,
             description TEXT,
-            FOREIGN KEY(category_fk) REFERENCES Expense_category(category_id));             
+            FOREIGN KEY(type_fk) REFERENCES Expense_type(type_name));             
         """)
         self.conn.commit()
         return expense_table
 
-
-    def record_expense(self, date, amt, curr, ctg, desc):
+    def record_expense(self, date, amt, curr, usd, ctg, desc):
         try:
             self.cursor.execute(
-                """INSERT INTO Expense_record(date, amount, currency, category_fk, description)
-                   VALUES (?, ?, ?, ?, ?)""",
-                (date, amt, curr, ctg, desc)
+                """INSERT INTO Expense_record(date, amount, currency, usd, type_fk, description)
+                   VALUES (?, ?, ?, ?, ?, ?)""",
+                (date, amt, curr, usd, ctg, desc)
             )
             self.conn.commit()
             print("Expense record saved successfully.")
         except sqlite3.Error as e:
             print("SQLite error:", e)
 
-    def add_expense_category(self, new_category=None):
+    def confirm_record_input(self):
+        self.conn = sqlite3.connect(self.expenses_db)
+        self.cursor.execute("SELECT * FROM Expense_record")
+        print(self.cursor.fetchall())
+        self.conn.commit()
+
+    def add_expense_type(self, new_type=None):
         # List of categories to be added
-        categories_to_add = [
+        types_to_add = [
             'electricity', 'entertainment', 'fruit', 'groceries', 'health', 'household_items',
-            'internet', 'misc', 'petrol', 'rent', 'restaurant', 'supplements',  'travel',
+            'internet', 'misc', 'petrol', 'rent', 'restaurant', 'supplements', 'travel',
             'visas',
         ]
 
-        if new_category:
-            categories_to_add.extend(new_category)
+        if new_type:
+            types_to_add.extend(new_type)
         try:
-            for category_name in categories_to_add:
+            for type_name in types_to_add:
                 # Check if the category already exists in the table
-                self.cursor.execute("SELECT category_id FROM Expense_category WHERE category_name=?",
-                                    (category_name,))
-                existing_category = self.cursor.fetchone()
+                self.cursor.execute("SELECT type_name FROM Expense_type WHERE type_name=?",
+                                    (type_name,))
+                existing_types = self.cursor.fetchone()
 
-                if existing_category is None:
+                if existing_types is None:
                     # If the category doesn't exist, insert it into the table
-                    self.cursor.execute("INSERT INTO Expense_category(category_name) VALUES(?)", (category_name,))
-                    print(f"Category '{category_name}' added successfully.")
+                    self.cursor.execute("INSERT INTO Expense_type(type_name) VALUES(?)", (type_name,))
+                    print(f"Category '{type_name}' added successfully.")
             self.conn.commit()
         except sqlite3.Error as e:
             print("SQLite error:", e)
