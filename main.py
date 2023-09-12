@@ -1,5 +1,4 @@
 import tkinter as tk
-import requests
 import customtkinter
 from constants import *
 from tkcalendar import Calendar, DateEntry
@@ -13,15 +12,14 @@ from toplevel import *
 customtkinter.set_appearance_mode("dark")
 
 
-class App(customtkinter.CTk, SaveToplevel):
+class App(customtkinter.CTk, Database):
     def __init__(self):
         super().__init__()
+        Database.__init__(self, "expenses.db")
 
         # configure window
         self.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
         self.title("Watch Your Dong")
-        self.db = Database("expenses.db")
-        # self.save_tl = SaveToplevel(self)
 
 
         # create date frame and widgets
@@ -102,7 +100,19 @@ class App(customtkinter.CTk, SaveToplevel):
         usd_amt = round(value * ex_rate, 2)
         print(f"${usd_amt}")
 
+    # def save_expense(self):
+    #     self.get_expense_info()
+    #     self.convert_to_usd()
+    #     self.destroy()
+
     def save_expense(self):
+        date = self.date_var
+        amt = float(self.exp_amt_var.get())
+        curr = self.curr_var.get()
+        ctg = self.exp_type_var.get()  # You may need to retrieve the category_fk based on the expense type.
+        desc = self.exp_desc_var.get()
+
+        self.db.record_expense(date, amt, curr, ctg, desc)
         self.get_expense_info()
         self.convert_to_usd()
         self.destroy()
@@ -116,51 +126,10 @@ class App(customtkinter.CTk, SaveToplevel):
         amount = self.exp_amt_var.get()
         # create SaveToplevel instance
         save_toplevel = SaveToplevel(date, description, exp_type, currency, amount)
+
         # create button
         save_button = customtkinter.CTkButton(save_toplevel, text="Save Expense", command=self.save_expense)
         save_button.pack(in_=save_toplevel.btn_frame, expand=True, fill=ctk.BOTH)
-
-
-
-
-    # def create_save_toplevel(self):
-    #     date = self.date_var
-    #     description = self.exp_desc_var.get()
-    #     exp_type = self.exp_type_var.get()
-    #     amount = self.exp_amt_var.get()
-    #     currency = self.curr_var.get()
-    #
-    #     # toplevel window
-    #     sv_tl = customtkinter.CTkToplevel()
-    #     sv_tl.geometry('300x150')
-    #     sv_tl.title('Save Expense')
-    #     sv_tl.wm_transient(self)
-    #     # toplevel frames
-    #     label_frame = customtkinter.CTkFrame(sv_tl)
-    #     label_frame.pack(expand=True, fill=tk.BOTH)
-    #     btn_frame = customtkinter.CTkFrame(sv_tl)
-    #     btn_frame.pack(expand=True, fill=tk.BOTH)
-    #     # toplevel widgets
-    #     tl_date = customtkinter.CTkLabel(label_frame, anchor='center', justify=tk.CENTER, text=f"Date: {date}",
-    #                                      font=LABEL_FONT)
-    #     # tl_date.grid(row=0, column=0)
-    #     tl_date.pack()
-    #     tl_exp_desc = customtkinter.CTkLabel(label_frame, text=f"Description: {description}",
-    #                                          font=LABEL_FONT, wraplength=380, padx=10)
-    #     # tl_exp_desc.grid(row=1, column=0)
-    #     tl_exp_desc.pack(expand=True, fill=tk.BOTH)
-    #     tl_exp_type = customtkinter.CTkLabel(label_frame, padx=10, text=f"Expense type: {exp_type}",
-    #                                          font=LABEL_FONT)
-    #     tl_exp_type.pack(expand=True, fill=tk.BOTH)
-    #     # tl_exp_type.grid(row=2, column=0)
-    #     tl_exp_amt = customtkinter.CTkLabel(label_frame, text=f"Amount: {currency} {amount}",
-    #                                         font=LABEL_FONT)
-    #     tl_exp_amt.pack(expand=True, fill=tk.BOTH)
-    #     # tl_exp_amt.grid(row=3, column=0)
-    #     tl_btn = customtkinter.CTkButton(btn_frame, text="Save Expense")
-    #     tl_btn.pack(expand=True, fill=tk.BOTH)
-    #     tl_btn.configure(command=lambda: (self.get_expense_info(), self.convert_to_usd(), sv_tl.destroy()))
-
 
 if __name__ == '__main__':
     app = App()
