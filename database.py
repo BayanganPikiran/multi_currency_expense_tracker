@@ -11,6 +11,8 @@ class Database:
         self.expense_record_table = self.create_expense_table()
         self.add_expense_type()
 
+    # ------------------------ Table Creation ---------------------------- #
+
     def create_exp_type_table(self):
         category_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Expense_type(
             type_id integer PRIMARY KEY AUTOINCREMENT,
@@ -31,6 +33,34 @@ class Database:
         """)
         self.conn.commit()
         return expense_table
+
+    def create_deposit_table(self):
+        deposit_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Deposit_record(
+            deposit_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL, 
+            currency TEXT NOT NULL,
+            amount DECIMAL (10, 2) NOT NULL,
+            usd TEXT NOT NULL)        
+        """)
+        self.conn.commit()
+        return deposit_table
+
+    def create_balance_table(self):
+        balance_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Balance_record(
+            transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            starting_balance DECIMAL(10,2) NOT NULL,
+            transaction_type TEXT NOT NULL CHECK(transaction_type IN ('credit', 'debit')),
+            transaction_amount DECIMAL(10,2) NOT NULL,
+            end_balance DECIMAL(10,2) NOT NULL,
+            deposit_id_fk INTEGER,
+            expense_id_fk INTEGER,
+            FOREIGN KEY(deposit_id_fk) REFERENCES Deposit_record(deposit_id),
+            FOREIGN KEY(expense_id_fk) REFERENCES Expense_record(expense_id)
+        )""")
+        self.conn.commit()
+        return balance_table
+
+    # ------------------------ Table Operations ---------------------------- #
 
     def record_expense(self, date, curr, amt, usd, typ, desc):
         try:
