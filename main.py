@@ -83,7 +83,8 @@ class App(customtkinter.CTk, Database):
                                                  width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT)
         self.query_btn.grid(row=2, column=1, padx=3)
 
-    # field functions
+
+        # field functions
     def get_expense_info(self):
         print("The following info will later be rolled into a table insert:")
         print(f"Date: {self.date_var}")
@@ -102,16 +103,11 @@ class App(customtkinter.CTk, Database):
         print(f"${usd_amt}")
         return usd_amt
 
-    import os
+
 
     def log_expense_decorator(log_file="expense_log.txt"):
         def decorator(func):
             def wrapper(self, *args, **kwargs):
-                # Generate a unique ID for each day
-                if not hasattr(self, "daily_expense_id"):
-                    self.daily_expense_id = 1
-                else:
-                    self.daily_expense_id += 1
 
                 # Get the relevant information
                 date = self.date_var
@@ -122,7 +118,7 @@ class App(customtkinter.CTk, Database):
                 desc = self.exp_desc_var.get()
 
                 # Construct the log message
-                log_message = f"{self.daily_expense_id}: {date}, {curr} {amt}, ${usd}, type: {typ}, description {desc}"
+                log_message = f"{date}: {curr} {amt}, ${usd}, type: {typ}, description: {desc}"
 
                 # Check if the log file exists, if not, create it
                 if not os.path.exists(log_file):
@@ -137,24 +133,56 @@ class App(customtkinter.CTk, Database):
                 result = func(self, *args, **kwargs)
 
                 return result
-
             return wrapper
-
         return decorator
+
+
+    def read_expense_log(self, log_file=None):
+        if log_file is None:
+            # Default to a standard location (e.g., project directory)
+            log_file = "expense_log.txt"
+
+        # Full path to the log file (insert your project directory as needed)
+        log_file_path = os.path.join("/home/boss_andre/Python_Projects/budgeter", log_file)
+
+        if not os.path.exists(log_file_path):
+            return "Expense log file does not exist."
+
+        # Check if it's a file, not a directory
+        if not os.path.isfile(log_file_path):
+            return "Invalid log file path. It is a directory, not a file."
+
+        with open(log_file_path, "r") as f:
+            content = f.read()
+
+        return content
 
     @log_expense_decorator()
     def save_expense(self):
+
+        # Get the relevant information
         date = self.date_var
         amt = float(self.exp_amt_var.get())
         curr = self.curr_var.get()
         usd = self.convert_to_usd()
-        typ = self.exp_type_var.get()  # You may need to retrieve the category_fk based on the expense type.
+        typ = self.exp_type_var.get()
         desc = self.exp_desc_var.get()
 
+        # Construct the log message with daily_expense_id
+        log_message = f"{date}, {curr} {amt}, ${usd}, type: {typ}, description: {desc}"
+
+
+        # Write the log message to the log file
+        log_file = "expense_log.txt"
+        with open(log_file, "a") as f:
+            f.write(log_message + "\n")
+
+        # Insert the expense record
         self.record_expense(date, amt, curr, usd, typ, desc)
         self.get_expense_info()
         self.convert_to_usd()
         self.confirm_record_input()
+        print(log_message)
         self.destroy()
 
     def create_save_toplevel(self):

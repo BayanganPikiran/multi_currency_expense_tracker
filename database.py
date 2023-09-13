@@ -22,8 +22,8 @@ class Database:
         expense_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Expense_record(
             expense_id INTEGER PRIMARY KEY AUTOINCREMENT, 
             date TEXT NOT NULL,
-            amount DECIMAL(10,2) NOT NULL,
             currency TEXT NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,            
             usd TEXT NOT NULL, 
             type_fk INTEGER,
             description TEXT,
@@ -32,12 +32,12 @@ class Database:
         self.conn.commit()
         return expense_table
 
-    def record_expense(self, date, amt, curr, usd, typ, desc):
+    def record_expense(self, date, curr, amt, usd, typ, desc):
         try:
             self.cursor.execute(
-                """INSERT INTO Expense_record(date, amount, currency, usd, type_fk, description)
+                """INSERT INTO Expense_record(date, currency, amount, usd, type_fk, description)
                    VALUES (?, ?, ?, ?, ?, ?)""",
-                (date, amt, curr, usd, typ, desc)
+                (date, curr, amt, usd, typ, desc)
             )
             self.conn.commit()
             print("Expense record saved successfully.")
@@ -53,9 +53,8 @@ class Database:
     def add_expense_type(self, new_type=None):
         # List of categories to be added
         types_to_add = [
-            'electricity', 'entertainment', 'fruit', 'groceries', 'health', 'household_items',
-            'internet', 'misc', 'petrol', 'rent', 'restaurant', 'supplements', 'travel',
-            'visas',
+            'clothing', 'electricity', 'entertainment', 'fruit', 'groceries', 'health', 'household_items',
+            'internet', 'misc', 'petrol', 'rent', 'restaurant', 'supplements', 'travel', 'visas',
         ]
 
         if new_type:
@@ -74,3 +73,14 @@ class Database:
             self.conn.commit()
         except sqlite3.Error as e:
             print("SQLite error:", e)
+
+    def get_last_expense_id(self):
+        try:
+            self.cursor.execute("SELECT MAX(expense_id) FROM Expense_record")
+            last_expense_id = self.cursor.fetchone()[0]
+            if last_expense_id is None:
+                return 0  # If no records exist yet
+            return last_expense_id
+        except sqlite3.Error as e:
+            print("SQLite error:", e)
+            return 0  # Handle the error gracefully
