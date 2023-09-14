@@ -29,21 +29,30 @@ class App(customtkinter.CTk, Database):
         self.date_pick_lbl.grid(row=0, column=0, padx=8, pady=5)
         self.date_pick = DateEntry(self.date_frame, font=DATE_ENTRY_FONT)
         self.date_var = self.date_pick.get_date()
-        self.date_pick.grid(row=0, column=1, padx=8, pady=5)
-
+        self.date_pick.grid(row=0, column=1, padx=18, pady=5)
+        # radio button
+        self.rb_var = tk.IntVar()
+        # self.transaction_type_lbl = customtkinter.CTkRadioButton(self.date_frame, text="Transaction type",
+        #                                                          font=LABEL_FONT)
+        # self.transaction_type_lbl.grid(row=0, column=2)
+        self.trans_tp_btn1 = customtkinter.CTkRadioButton(self.date_frame, text="Deposit",
+                                                          variable=self.rb_var, value=0)
+        self.trans_tp_btn1.grid(row=0, column=2, padx=10)
+        self.trans_tp_btn2 = customtkinter.CTkRadioButton(self.date_frame, text="Expense", variable=self.rb_var, value=1)
+        self.trans_tp_btn2.grid(row=0, column=3, padx=0)
         # deposit frame and widgets
         self.deposit_frame = customtkinter.CTkFrame(self)
         self.deposit_frame.pack(expand=True, fill=tk.BOTH)
-        self.deposit_var = tk.StringVar()
+        self.deposit_amt_var = tk.StringVar()
         self.dep_entry_lbl = customtkinter.CTkLabel(self.deposit_frame, text="Deposit amount",
                                                     anchor='w', font=LABEL_FONT)
         self.dep_entry_lbl.grid(row=0, column=0, padx=10, sticky=tk.NSEW)
         self.deposit_entry = customtkinter.CTkEntry(self.deposit_frame, placeholder_text="Enter deposit amount here",
                                                     width=ENTRY_WIDTH, height=ENTRY_HEIGHT,
-                                                    textvariable=self.deposit_var)
+                                                    textvariable=self.deposit_amt_var)
         self.deposit_entry.grid(row=1, column=0, padx=3, pady=3, sticky=tk.NSEW)
         self.dep_curr_var = tk.StringVar()
-        self.dep_curr_lbl = customtkinter.CTkLabel(self.deposit_frame, text="Deposit currency",
+        self.dep_curr_lbl = customtkinter.CTkLabel(self.deposit_frame, text="Deposit exp_curr",
                                                    anchor='w', font=LABEL_FONT)
         self.dep_curr_lbl.grid(row=0, column=1, padx=10, sticky=tk.NSEW)
         self.deposit_currency = customtkinter.CTkComboBox(self.deposit_frame, values=CURRENCIES,
@@ -83,15 +92,15 @@ class App(customtkinter.CTk, Database):
                                                         width=ENTRY_WIDTH, height=ENTRY_HEIGHT,
                                                         textvariable=self.exp_amt_var)
         self.expense_amt_entry.grid(row=3, column=0, columnspan=2, padx=3, pady=3)
-        # choose currency for expense
-        self.currency_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense currency",
+        # choose exp_curr for expense
+        self.exp_curr_lbl = customtkinter.CTkLabel(self.expense_frame, text="Expense exp_curr",
                                                    anchor='w', font=LABEL_FONT)
-        self.currency_lbl.grid(row=2, column=2, sticky=tk.NSEW, padx=10, pady=5)
+        self.exp_curr_lbl.grid(row=2, column=2, sticky=tk.NSEW, padx=10, pady=5)
         self.exp_curr_var = tk.StringVar()
-        self.currency = customtkinter.CTkComboBox(self.expense_frame, values=CURRENCIES,
+        self.exp_curr = customtkinter.CTkComboBox(self.expense_frame, values=CURRENCIES,
                                                   width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT,
                                                   variable=self.exp_curr_var)
-        self.currency.grid(row=3, column=2)
+        self.exp_curr.grid(row=3, column=2)
 
         # buttons
         self.button_frame = customtkinter.CTkFrame(self)
@@ -113,16 +122,27 @@ class App(customtkinter.CTk, Database):
         print(f"Description: {self.exp_desc_var.get()}")
         print(f"Expense type: {self.exp_type_var.get()}")
 
-    def convert_to_usd(self):  # doesn't have all rates
-        base_cur = self.exp_curr_var.get()
+    def convert_to_usd(self, base):  # doesn't have all rates
+        base_cur = base
         print(base_cur)
-        value = float(self.exp_amt_var.get())
+        value = float(base_cur)
         c = CurrencyRates()
         print(c.get_rates('USD'))
         ex_rate = c.get_rate(base_cur, 'USD')
         usd_amt = round(value * ex_rate, 2)
         print(f"${usd_amt}")
         return usd_amt
+
+    # def convert_to_usd(self):  # doesn't have all rates
+    #     base_cur = self.exp_curr_var.get()
+    #     print(base_cur)
+    #     value = float(self.exp_amt_var.get())
+    #     c = CurrencyRates()
+    #     print(c.get_rates('USD'))
+    #     ex_rate = c.get_rate(base_cur, 'USD')
+    #     usd_amt = round(value * ex_rate, 2)
+    #     print(f"${usd_amt}")
+    #     return usd_amt
 
     def log_expense_decorator(log_file="expense_log.txt"):
         def decorator(func):
@@ -134,26 +154,19 @@ class App(customtkinter.CTk, Database):
                 usd = self.convert_to_usd()
                 typ = self.exp_type_var.get()
                 desc = self.exp_desc_var.get()
-
                 # Construct the log message
                 log_message = f"{date}: {curr} {amt}, ${usd}, type: {typ}, description: {desc}"
-
                 # Check if the log file exists, if not, create it
                 if not os.path.exists(log_file):
                     with open(log_file, "w") as f:
                         f.write("Expense Log\n")
-
                 # Append the log message to the log file
                 with open(log_file, "a") as f:
                     f.write(log_message + "\n")
-
                 # Call the original function
                 result = func(self, *args, **kwargs)
-
                 return result
-
             return wrapper
-
         return decorator
 
     def read_expense_log(self, log_file=None):
@@ -181,14 +194,13 @@ class App(customtkinter.CTk, Database):
 
         # Get the relevant information
         date = self.date_var
-        amt = float(self.exp_amt_var.get())
-        curr = self.exp_curr_var.get()
+        exp_amt = float(self.exp_amt_var.get())
+        exp_curr = self.exp_curr_var.get()
         usd = self.convert_to_usd()
-        typ = self.exp_type_var.get()
-        desc = self.exp_desc_var.get()
+        exp_typ = self.exp_type_var.get()
+        exp_desc = self.exp_desc_var.get()
 
-        # Construct the log message with daily_expense_id
-        log_message = f"{date}, {curr} {amt}, ${usd}, type: {typ}, description: {desc}"
+        log_message = f"{date}, {exp_curr} {exp_amt}, ${usd}, type: {exp_typ}, description: {exp_desc}"
 
         # Write the log message to the log file
         log_file = "expense_log.txt"
@@ -196,7 +208,7 @@ class App(customtkinter.CTk, Database):
             f.write(log_message + "\n")
 
         # Insert the expense record
-        self.record_expense(date, amt, curr, usd, typ, desc)
+        self.record_expense(date, exp_amt, exp_curr, usd, exp_typ, exp_desc)
         self.get_expense_info()
         self.convert_to_usd()
         self.confirm_record_input()
