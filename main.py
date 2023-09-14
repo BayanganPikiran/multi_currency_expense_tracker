@@ -31,6 +31,19 @@ class App(customtkinter.CTk, Database):
         self.date_var = self.date_pick.get_date()
         self.date_pick.grid(row=0, column=1, padx=8, pady=5)
 
+        # deposit frame and widgets
+        self.deposit_frame = customtkinter.CTkFrame(self)
+        self.deposit_frame.pack()
+        self.deposit_var = tk.StringVar()
+        self.deposit_entry = customtkinter.CTkEntry(self.deposit_frame, placeholder_text="Enter deposit amount here",
+                                                    width=ENTRY_WIDTH, height=ENTRY_HEIGHT,
+                                                    textvariable=self.deposit_var)
+        self.deposit_entry.grid(row=0, column=0, sticky=tk.NSEW)
+        self.dep_curr_var = tk.StringVar()
+        self.deposit_currency = customtkinter.CTkComboBox(self.deposit_frame, values=CURRENCIES,
+                                                          width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT,
+                                                          variable=self.dep_curr_var)
+
         # expense frame
         self.expense_frame = customtkinter.CTkFrame(self)
         self.expense_frame.pack(expand=True, fill=tk.BOTH)
