@@ -31,15 +31,13 @@ class App(customtkinter.CTk, Database):
         self.date_var = self.date_pick.get_date()
         self.date_pick.grid(row=0, column=1, padx=18, pady=5)
         # radio button
-        self.rb_var = tk.IntVar()
-        # self.transaction_type_lbl = customtkinter.CTkRadioButton(self.date_frame, text="Transaction type",
-        #                                                          font=LABEL_FONT)
-        # self.transaction_type_lbl.grid(row=0, column=2)
-        self.trans_tp_btn1 = customtkinter.CTkRadioButton(self.date_frame, text="Deposit",
-                                                          variable=self.rb_var, value=0)
-        self.trans_tp_btn1.grid(row=0, column=2, padx=10)
-        self.trans_tp_btn2 = customtkinter.CTkRadioButton(self.date_frame, text="Expense", variable=self.rb_var, value=1)
-        self.trans_tp_btn2.grid(row=0, column=3, padx=0)
+        self.transaction_var = tk.IntVar()
+        self.trans_type_btn1 = customtkinter.CTkRadioButton(self.date_frame, text="Deposit",
+                                                            variable=self.transaction_var, value="D")
+        self.trans_type_btn1.grid(row=0, column=2, padx=10)
+        self.trans_type_btn2 = customtkinter.CTkRadioButton(self.date_frame, text="Expense",
+                                                            variable=self.transaction_var, value="E")
+        self.trans_type_btn2.grid(row=0, column=3, padx=0)
         # deposit frame and widgets
         self.deposit_frame = customtkinter.CTkFrame(self)
         self.deposit_frame.pack(expand=True, fill=tk.BOTH)
@@ -122,16 +120,6 @@ class App(customtkinter.CTk, Database):
         print(f"Description: {self.exp_desc_var.get()}")
         print(f"Expense type: {self.exp_type_var.get()}")
 
-    def convert_to_usd(self, base):  # doesn't have all rates
-        base_cur = base
-        print(base_cur)
-        value = float(base_cur)
-        c = CurrencyRates()
-        print(c.get_rates('USD'))
-        ex_rate = c.get_rate(base_cur, 'USD')
-        usd_amt = round(value * ex_rate, 2)
-        print(f"${usd_amt}")
-        return usd_amt
 
     # def convert_to_usd(self):  # doesn't have all rates
     #     base_cur = self.exp_curr_var.get()
@@ -166,7 +154,9 @@ class App(customtkinter.CTk, Database):
                 # Call the original function
                 result = func(self, *args, **kwargs)
                 return result
+
             return wrapper
+
         return decorator
 
     def read_expense_log(self, log_file=None):
@@ -217,16 +207,17 @@ class App(customtkinter.CTk, Database):
 
     def create_save_toplevel(self):
         # get parameters for SaveToplevel
-        date = self.date_var
-        description = self.exp_desc_var.get()
-        exp_type = self.exp_type_var.get()
-        currency = self.exp_curr_var.get()
-        amount = self.exp_amt_var.get()
+        # date = self.date_var
+        # description = self.exp_desc_var.get()
+        # exp_type = self.exp_type_var.get()
+        # currency = self.exp_curr_var.get()
+        # amount = self.exp_amt_var.get()
         # create SaveToplevel instance
         save_toplevel = SaveToplevel(date, description, exp_type, currency, amount)
 
         # create button
-        save_button = customtkinter.CTkButton(save_toplevel, text="Save Expense", command=self.save_expense)
+        save_button = customtkinter.CTkButton(save_toplevel, text="Save Expense",
+                                              command=[self.save_expense, self.destroy()])
         save_button.pack(in_=save_toplevel.btn_frame, expand=True, fill=ctk.BOTH)
 
 

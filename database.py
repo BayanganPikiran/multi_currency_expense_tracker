@@ -24,7 +24,7 @@ class Database:
         expense_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Expense_record(
             expense_id INTEGER PRIMARY KEY AUTOINCREMENT, 
             date TEXT NOT NULL,
-            currency TEXT NOT NULL,
+            exp_curr TEXT NOT NULL,
             amount DECIMAL(10,2) NOT NULL,            
             usd TEXT NOT NULL, 
             type_fk INTEGER,
@@ -38,7 +38,7 @@ class Database:
         deposit_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Deposit_record(
             deposit_id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT NOT NULL, 
-            currency TEXT NOT NULL,
+            exp_curr TEXT NOT NULL,
             amount DECIMAL (10, 2) NOT NULL,
             usd TEXT NOT NULL)        
         """)
@@ -65,7 +65,7 @@ class Database:
     def record_expense(self, date, curr, amt, usd, typ, desc):
         try:
             self.cursor.execute(
-                """INSERT INTO Expense_record(date, currency, amount, usd, type_fk, description)
+                """INSERT INTO Expense_record(date, exp_curr, amount, usd, type_fk, description)
                    VALUES (?, ?, ?, ?, ?, ?)""",
                 (date, curr, amt, usd, typ, desc)
             )
