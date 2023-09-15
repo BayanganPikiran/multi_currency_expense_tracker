@@ -2,7 +2,7 @@ import customtkinter as ctk
 from constants import *
 
 
-class SaveToplevel(ctk.CTkToplevel):
+class ExpenseToplevel(ctk.CTkToplevel):
 
     def __init__(self, date, description, exp_type, currency, amount):
         # Window
@@ -14,8 +14,8 @@ class SaveToplevel(ctk.CTkToplevel):
         self.date = date
         self.description = description
         self.exp_type = exp_type
-        self.currency = currency
-        self.amount = amount
+        self.exp_curr = currency
+        self.exp_amt = amount
         # toplevel frames
         self.label_frame = ctk.CTkFrame(self)
         self.label_frame.pack(expand=True, fill=ctk.BOTH)
@@ -40,3 +40,18 @@ class SaveToplevel(ctk.CTkToplevel):
         # tl_btn = ctk.CTkButton(self.btn_frame, text="Save Expense")
         # tl_btn.pack(expand=True, fill=ctk.BOTH)
         # # tl_btn.configure(command=lambda: (self.get_expense_info(), self.convert_to_usd(), self.destroy()))
+
+
+class DepositTopLevel(ctk.CTkToplevel):
+
+    def __init__(self, date, currency, amount):
+        # window
+        ctk.CTkToplevel.__init__(self)
+        self.geometry('300x150')
+        self.title('Save Deposit')
+        self.wm_transient()
+        # parameters
+        self.date = date
+        self.dep_curr = currency
+        self.dep_amt = amount
+        
