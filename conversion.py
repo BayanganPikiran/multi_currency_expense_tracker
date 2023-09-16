@@ -5,25 +5,25 @@ from database import Database
 
 class Conversion(Database):
 
-    def __init__(self, date, trans_type, base_curr, val_curr, exp_type, exp_desc):
+    def __init__(self, date, trans_type, base_curr, amt_curr, exp_type, exp_desc):
         Database.__init__(self, "expenses.db")
         self.date = date
+        self.transaction_type = trans_type
         self.base_curr = base_curr
-        self.curr_val = val_curr
+        self.amt_val = amt_curr
         self.exp_type = exp_type
         self.exp_desc = exp_desc
-        self.transaction_type = trans_type
 
     def get_expense_info(self):
         print("The following info will later be rolled into a table insert:")
         print(f"Date: {self.date}")
-        print(f"Expense amount: {self.base_curr} {self.curr_val}")
+        print(f"Expense amount: {self.base_curr} {self.amt_val}")
         print(f"Description: {self.exp_desc}")
         print(f"Expense type: {self.exp_type}")
 
     def convert_to_usd(self):  # doesn't have all rates
         print(self.base_curr)
-        value = float(self.curr_val)
+        value = float(self.amt_val)
         c = CurrencyRates()
         print(c.get_rates('USD'))
         ex_rate = c.get_rate(self.base_curr, 'USD')
@@ -53,10 +53,10 @@ class Conversion(Database):
                 # typ = self.exp_type_var.get()
                 # desc = self.exp_desc_var.get()
                 # Construct the log message
-                if self.transaction_type == 'D':
-                    log_message = f"{self.date}, Deposit: {self.base_curr} {self.curr_val}, ${usd}"
-                elif self.transaction_type == 'E':
-                    log_message = (f"{self.date}, Expense: {self.base_curr} {self.curr_val},"
+                if self.transaction_type == 0:
+                    log_message = f"{self.date}, Deposit: {self.base_curr} {self.amt_val}, ${usd}"
+                elif self.transaction_type == 1:
+                    log_message = (f"{self.date}, Expense: {self.base_curr} {self.amt_val},"
                                    f" ${usd}, type: {self.exp_type}, description: {self.exp_desc}")
                 # log_message = f"{date}: {curr} {amt}, ${usd}, type: {typ}, description: {desc}"
                 # Check if the log file exists, if not, create it
@@ -104,7 +104,7 @@ class Conversion(Database):
         # exp_typ = self.exp_type_var.get()
         # exp_desc = self.exp_desc_var.get()
 
-        log_message = (f"This is what's being logged: {self.date}, Expense: {self.base_curr} {self.curr_val},"
+        log_message = (f"This is what's being logged: {self.date}, Expense: {self.base_curr} {self.amt_val},"
                        f" ${usd}, type: {self.exp_type}, description: {self.exp_desc}")
         # Write the log message to the log file
         log_file = "expense_log.txt"
@@ -112,7 +112,7 @@ class Conversion(Database):
             f.write(log_message + "\n")
 
         # Insert the expense record
-        self.record_expense(self.date, self.curr_val, self.base_curr, usd, self.exp_type, self.exp_desc)
+        self.record_expense(self.date, self.amt_val, self.base_curr, usd, self.exp_type, self.exp_desc)
         self.get_expense_info()
         self.convert_to_usd()
         self.confirm_record_input()

@@ -48,7 +48,7 @@ class DepositTopLevel(ctk.CTkToplevel):
     def __init__(self, date, currency, amount):
         # window
         ctk.CTkToplevel.__init__(self)
-        self.geometry('300x150')
+        self.geometry('225x85')
         self.title('Save Deposit')
         self.wm_transient()
         # parameters
@@ -58,11 +58,14 @@ class DepositTopLevel(ctk.CTkToplevel):
         # frame
         self.deposit_frame = ctk.CTkFrame(self)
         self.deposit_frame.pack(expand=True, fill=ctk.BOTH)
+        self.button_frame = ctk.CTkFrame(self)
+        self.button_frame.pack(expand=True, fill=ctk.BOTH)
         # labels
         self.dep_date_lbl = ctk.CTkLabel(self.deposit_frame, anchor='center', justify=ctk.CENTER,
                                          text=f"Date: {self.dep_date}", font=LABEL_FONT)
         self.dep_date_lbl.pack(expand=True, fill=ctk.BOTH)
-        self.dep_statement_lbl = ctk.CTkLabel(self.deposit_frame, text=f"Deposited {self.dep_curr} {self.dep_amt}")
+        self.dep_statement_lbl = ctk.CTkLabel(self.deposit_frame, text=f"Deposited {self.dep_curr} {self.dep_amt}",
+                                              font=LABEL_FONT)
         self.dep_statement_lbl.pack(expand=True, fill=ctk.BOTH)
         self.dep_confirm_btn = ctk.CTkLabel(self.deposit_frame, text="Confirm")
         self.dep_confirm_btn.pack(expand=True, fill=ctk.BOTH)

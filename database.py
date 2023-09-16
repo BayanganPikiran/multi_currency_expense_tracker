@@ -25,7 +25,7 @@ class Database:
             expense_id INTEGER PRIMARY KEY AUTOINCREMENT, 
             date TEXT NOT NULL,
             exp_curr TEXT NOT NULL,
-            amount DECIMAL(10,2) NOT NULL,            
+            exp_amt DECIMAL(10,2) NOT NULL,            
             usd TEXT NOT NULL, 
             type_fk INTEGER,
             description TEXT,
@@ -39,7 +39,7 @@ class Database:
             deposit_id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT NOT NULL, 
             exp_curr TEXT NOT NULL,
-            amount DECIMAL (10, 2) NOT NULL,
+            exp_amt DECIMAL (10, 2) NOT NULL,
             usd TEXT NOT NULL)        
         """)
         self.conn.commit()
@@ -65,7 +65,7 @@ class Database:
     def record_expense(self, date, curr, amt, usd, typ, desc):
         try:
             self.cursor.execute(
-                """INSERT INTO Expense_record(date, exp_curr, amount, usd, type_fk, description)
+                """INSERT INTO Expense_record(date, exp_curr, exp_amt, usd, type_fk, description)
                    VALUES (?, ?, ?, ?, ?, ?)""",
                 (date, curr, amt, usd, typ, desc)
             )
