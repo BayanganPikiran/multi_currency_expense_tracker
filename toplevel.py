@@ -1,3 +1,4 @@
+import customtkinter
 import customtkinter as ctk
 from constants import *
 
@@ -51,7 +52,18 @@ class DepositTopLevel(ctk.CTkToplevel):
         self.title('Save Deposit')
         self.wm_transient()
         # parameters
-        self.date = date
+        self.dep_date = date
         self.dep_curr = currency
         self.dep_amt = amount
-        
+        # frame
+        self.deposit_frame = ctk.CTkFrame(self)
+        self.deposit_frame.pack(expand=True, fill=ctk.BOTH)
+        # labels
+        self.dep_date_lbl = ctk.CTkLabel(self.deposit_frame, anchor='center', justify=ctk.CENTER,
+                                         text=f"Date: {self.dep_date}", font=LABEL_FONT)
+        self.dep_date_lbl.pack(expand=True, fill=ctk.BOTH)
+        self.dep_statement_lbl = ctk.CTkLabel(self.deposit_frame, text=f"Deposited {self.dep_curr} {self.dep_amt}")
+        self.dep_statement_lbl.pack(expand=True, fill=ctk.BOTH)
+        self.dep_confirm_btn = ctk.CTkLabel(self.deposit_frame, text="Confirm")
+        self.dep_confirm_btn.pack(expand=True, fill=ctk.BOTH)
+
