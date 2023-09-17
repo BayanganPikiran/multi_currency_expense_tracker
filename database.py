@@ -38,8 +38,8 @@ class Database:
         deposit_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Deposit_record(
             deposit_id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT NOT NULL, 
-            exp_curr TEXT NOT NULL,
-            exp_amt DECIMAL (10, 2) NOT NULL,
+            dep_curr TEXT NOT NULL,
+            dep_amt DECIMAL (10, 2) NOT NULL,
             usd TEXT NOT NULL)        
         """)
         self.conn.commit()
@@ -60,25 +60,7 @@ class Database:
         self.conn.commit()
         return balance_table
 
-    # ------------------------ Table Operations ---------------------------- #
-
-    def record_expense(self, date, curr, amt, usd, typ, desc):
-        try:
-            self.cursor.execute(
-                """INSERT INTO Expense_record(date, exp_curr, exp_amt, usd, type_fk, description)
-                   VALUES (?, ?, ?, ?, ?, ?)""",
-                (date, curr, amt, usd, typ, desc)
-            )
-            self.conn.commit()
-            print("Expense record saved successfully.")
-        except sqlite3.Error as e:
-            print("SQLite error:", e)
-
-    def confirm_record_input(self):
-        self.conn = sqlite3.connect(self.expenses_db)
-        self.cursor.execute("SELECT * FROM Expense_record")
-        print(self.cursor.fetchall())
-        self.conn.commit()
+    # ------------------------ Expense Operations ---------------------------- #
 
     def add_expense_type(self, new_type=None):
         # List of categories to be added
@@ -104,13 +86,78 @@ class Database:
         except sqlite3.Error as e:
             print("SQLite error:", e)
 
-    def get_last_expense_id(self):
+    def record_expense(self, date, curr, amt, usd, typ, desc):
         try:
-            self.cursor.execute("SELECT MAX(expense_id) FROM Expense_record")
-            last_expense_id = self.cursor.fetchone()[0]
-            if last_expense_id is None:
-                return 0  # If no records exist yet
-            return last_expense_id
+            # Record the expense in the Expense_record table
+            self.cursor.execute(
+                """INSERT INTO Expense_record(date, exp_curr, exp_amt, usd, type_fk, description)
+                   VALUES (?, ?, ?, ?, ?, ?)""",
+                (date, curr, amt, usd, typ, desc)
+            )
+            self.conn.commit()
+            print("Expense record saved successfully.")
+
+            # Record the balance transaction (debit)
+            self.record_balance_transaction('debit', float(usd), amt)
+
         except sqlite3.Error as e:
             print("SQLite error:", e)
-            return 0  # Handle the error gracefully
+
+    def confirm_record_input(self):
+        self.conn = sqlite3.connect(self.expenses_db)
+        self.cursor.execute("SELECT * FROM Expense_record")
+        print(self.cursor.fetchall())
+        self.conn.commit()
+
+    # def get_last_expense_id(self):
+    #     try:
+    #         self.cursor.execute("SELECT MAX(expense_id) FROM Expense_record")
+    #         last_expense_id = self.cursor.fetchone()[0]
+    #         if last_expense_id is None:
+    #             return 0  # If no records exist yet
+    #         return last_expense_id
+    #     except sqlite3.Error as e:
+    #         print("SQLite error:", e)
+    #         return 0  # Handle the error gracefully
+
+    # ------------------------ Deposit Operations ---------------------------- #
+
+    def record_deposit(self):
+        def record_deposit(self, date, curr, amt, usd):
+            try:
+                # Record the deposit in the Deposit_record table
+                self.cursor.execute(
+                    """INSERT INTO Deposit_record(date, dep_curr, dep_amt, usd)
+                       VALUES (?, ?, ?, ?)""",
+                    (date, curr, amt, usd)
+                )
+                self.conn.commit()
+                print("Deposit record saved successfully.")
+
+                # Record the balance transaction (credit)
+                self.record_balance_transaction('credit', float(usd), amt)
+
+            except sqlite3.Error as e:
+                print("SQLite error:", e)
+
+    # ------------------------ Balance Operations ---------------------------- #
+    def record_balance_transaction(self, transaction_type, starting_balance, transaction_amount):
+        # Calculate end_balance based on the transaction type (credit or debit)
+        if transaction_type == 'credit':
+            end_balance = starting_balance + transaction_amount
+        elif transaction_type == 'debit':
+            end_balance = starting_balance - transaction_amount
+        else:
+            raise ValueError("Invalid transaction_type")
+
+        # Insert the transaction into the Balance_record table
+        try:
+            self.cursor.execute(
+                """INSERT INTO Balance_record(starting_balance, transaction_type, transaction_amount, end_balance)
+                   VALUES (?, ?, ?, ?)""",
+                (starting_balance, transaction_type, transaction_amount, end_balance)
+            )
+            self.conn.commit()
+            print("Balance record saved successfully.")
+        except sqlite3.Error as e:
+            print("SQLite error:", e)
