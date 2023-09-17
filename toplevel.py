@@ -1,6 +1,7 @@
 import customtkinter
 import customtkinter as ctk
 from constants import *
+from tkcalendar import DateEntry
 
 
 class ExpenseToplevel(ctk.CTkToplevel):
@@ -70,3 +71,35 @@ class DepositTopLevel(ctk.CTkToplevel):
         self.dep_confirm_btn = ctk.CTkLabel(self.deposit_frame, text="Confirm")
         self.dep_confirm_btn.pack(expand=True, fill=ctk.BOTH)
 
+
+class StartingBalanceToplevel(ctk.CTkToplevel):
+    def __init__(self, date, currency, amount):
+        # window
+        ctk.CTkToplevel.__init__(self)
+        self.geometry('225x100')
+        self.title("Starting Balance")
+        self.wm_transient()
+        self.balance_var = ctk.StringVar()
+        # frames
+        self.date_frame = ctk.CTkFrame(self)
+        self.date_frame.pack(expand=True, fill=ctk.BOTH)
+        self.entry_frame = ctk.CTkFrame(self)
+        self.entry_frame.pack(expand=True, fill=ctk.BOTH)
+        self.button_frame = ctk.CTkFrame(self)
+        self.button_frame.pack(expand=True, fill=ctk.BOTH)
+        # date
+        self.start_date = DateEntry(self.date_frame, font=DATE_ENTRY_FONT)
+        self.start_date.pack(expand=True, fill=ctk.BOTH)
+        # entry
+        self.request_balance = ctk.CTkLabel(self.entry_frame, text="Please enter your starting balance",
+                                            font=LABEL_FONT)
+        self.request_balance.grid(row=0, column=0)
+        self.balance_entry = ctk.CTkEntry(self.entry_frame, textvariable=self.balance_var,
+                                          width=ENTRY_WIDTH, height=ENTRY_HEIGHT)
+        self.balance_entry.grid(row=1, column=0)
+        self.balance_curr = ctk.CTkComboBox(self.entry_frame, values=CURRENCIES,
+                                            width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT)
+        self.balance_curr.grid(row=1, column=2)
+        # button
+        self.save_btn = ctk.CTkButton(self.button_frame, text="Save starting balance")
+        self.save_btn.pack(expand=True, fill=ctk.BOTH)
