@@ -9,6 +9,8 @@ class Database:
         self.cursor = self.conn.cursor()
         self.expense_type_table = self.create_exp_type_table()
         self.expense_record_table = self.create_expense_table()
+        self.deposit_record_table = self.create_deposit_table()
+        self.balance_table = self.create_balance_table()
         self.add_expense_type()
 
     # ------------------------ Table Creation ---------------------------- #
@@ -161,3 +163,12 @@ class Database:
             print("Balance record saved successfully.")
         except sqlite3.Error as e:
             print("SQLite error:", e)
+
+    def get_starting_balance(self):
+        try:
+            self.cursor.execute("SELECT starting_balance FROM Balance_record ORDER BY transaction_id ASC LIMIT 1")
+            starting_balance = self.cursor.fetchone()
+            return starting_balance[0] if starting_balance else None
+        except sqlite3.Error as e:
+            print("SQLite error:", e)
+            return None

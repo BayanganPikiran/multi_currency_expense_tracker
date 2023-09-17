@@ -1,4 +1,3 @@
-import tkinter as tk
 import customtkinter as ctk
 from constants import *
 from tkcalendar import Calendar, DateEntry
@@ -12,6 +11,7 @@ import os
 # --------------------------------------------
 
 customtkinter.set_appearance_mode("dark")
+# Initialize the Database instance
 
 
 class App(customtkinter.CTk, Conversion):
@@ -25,19 +25,19 @@ class App(customtkinter.CTk, Conversion):
         self.title("Watch Your Dong")
         # Stringvars, Intvars and Vars
         self.date_var = None  # We cannot create a DateEntry here and call it in the setup_ui()
-        self.transaction_var = tk.IntVar()
-        self.deposit_amt_var = tk.StringVar()
-        self.expense_amt_var = tk.StringVar()
-        self.deposit_curr_var = tk.StringVar()
-        self.expense_curr_var = tk.StringVar()
-        self.exp_desc_var = tk.StringVar()
-        self.exp_type_var = tk.StringVar()
+        self.transaction_var = ctk.IntVar()
+        self.deposit_amt_var = ctk.StringVar()
+        self.expense_amt_var = ctk.StringVar()
+        self.deposit_curr_var = ctk.StringVar()
+        self.expense_curr_var = ctk.StringVar()
+        self.exp_desc_var = ctk.StringVar()
+        self.exp_type_var = ctk.StringVar()
         # date
 
     def setup_ui(self):
         # create date frame and widgets
         self.date_frame = ctk.CTkFrame(self, width=DATE_FRAME_WIDTH, height=DATE_FRAME_HEIGHT)
-        self.date_frame.pack(expand=True, fill=tk.BOTH)
+        self.date_frame.pack(expand=True, fill=ctk.BOTH)
         self.date_pick_lbl = ctk.CTkLabel(self.date_frame, text='Transaction date:', font=LABEL_FONT)
         self.date_pick_lbl.grid(row=0, column=0, padx=8, pady=5)
         self.date_pick = DateEntry(self.date_frame, font=DATE_ENTRY_FONT)
@@ -53,21 +53,21 @@ class App(customtkinter.CTk, Conversion):
         self.trans_type_btn2.grid(row=0, column=3, padx=0)
         # deposit frame and widgets
         self.deposit_frame = ctk.CTkFrame(self)
-        self.deposit_frame.pack(expand=True, fill=tk.BOTH)
+        self.deposit_frame.pack(expand=True, fill=ctk.BOTH)
         # self.curr_amt_var = tk.StringVar()
         # self.deposit_amt_var = tk.StringVar()
         self.dep_entry_lbl = ctk.CTkLabel(self.deposit_frame, text="Deposit amount",
                                           anchor='w', font=LABEL_FONT)
-        self.dep_entry_lbl.grid(row=0, column=0, padx=10, sticky=tk.NSEW)
+        self.dep_entry_lbl.grid(row=0, column=0, padx=10, sticky=ctk.NSEW)
         self.deposit_entry = ctk.CTkEntry(self.deposit_frame, placeholder_text="Enter deposit amount here",
                                           width=ENTRY_WIDTH, height=ENTRY_HEIGHT,
                                           textvariable=self.deposit_amt_var)
-        self.deposit_entry.grid(row=1, column=0, padx=3, pady=3, sticky=tk.NSEW)
+        self.deposit_entry.grid(row=1, column=0, padx=3, pady=3, sticky=ctk.NSEW)
         # self.curr_var = tk.StringVar()
         # self.dep_curr_var = tk.StringVar()
         self.dep_curr_lbl = ctk.CTkLabel(self.deposit_frame, text="Deposit currency",
                                          anchor='w', font=LABEL_FONT)
-        self.dep_curr_lbl.grid(row=0, column=1, padx=10, sticky=tk.NSEW)
+        self.dep_curr_lbl.grid(row=0, column=1, padx=10, sticky=ctk.NSEW)
         self.deposit_currency = ctk.CTkComboBox(self.deposit_frame, values=CURRENCIES,
                                                 width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT,
                                                 variable=self.deposit_curr_var)  # !! changed here
@@ -75,11 +75,11 @@ class App(customtkinter.CTk, Conversion):
 
         # expense frame
         self.expense_frame = ctk.CTkFrame(self)
-        self.expense_frame.pack(expand=True, fill=tk.BOTH)
+        self.expense_frame.pack(expand=True, fill=ctk.BOTH)
         # expense description
         self.expense_desc_lbl = ctk.CTkLabel(self.expense_frame, text="Expense description",
                                              anchor='w', font=LABEL_FONT)
-        self.expense_desc_lbl.grid(row=0, column=0, padx=10, sticky=tk.NSEW)
+        self.expense_desc_lbl.grid(row=0, column=0, padx=10, sticky=ctk.NSEW)
         # self.exp_desc_var = tk.StringVar()
         self.exp_desc_entry = ctk.CTkEntry(self.expense_frame, placeholder_text="Enter description here",
                                            width=ENTRY_WIDTH, height=ENTRY_HEIGHT,
@@ -89,7 +89,7 @@ class App(customtkinter.CTk, Conversion):
         # expense type
         self.exp_type_lbl = ctk.CTkLabel(self.expense_frame, text="Expense type",
                                          anchor='w', font=LABEL_FONT)
-        self.exp_type_lbl.grid(row=0, column=2, sticky=tk.NSEW, padx=10)
+        self.exp_type_lbl.grid(row=0, column=2, sticky=ctk.NSEW, padx=10)
         # self.exp_type_var = tk.StringVar()
         self.expense_type = ctk.CTkComboBox(self.expense_frame, values=EXPENSE_TYPES,
                                             width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT,
@@ -98,7 +98,7 @@ class App(customtkinter.CTk, Conversion):
         # expense exp_amt
         self.expense_amt_lbl = ctk.CTkLabel(self.expense_frame, text="Expense amount",
                                             anchor='w', font=LABEL_FONT)
-        self.expense_amt_lbl.grid(row=2, column=0, sticky=tk.NSEW, padx=10, pady=5)
+        self.expense_amt_lbl.grid(row=2, column=0, sticky=ctk.NSEW, padx=10, pady=5)
         # self.exp_amt_var = tk.StringVar()
         self.expense_amt_entry = ctk.CTkEntry(self.expense_frame,
                                               placeholder_text="Enter expense exp_amt here",
@@ -108,7 +108,7 @@ class App(customtkinter.CTk, Conversion):
         # choose exp_curr for expense
         self.exp_curr_lbl = ctk.CTkLabel(self.expense_frame, text="Expense currency",
                                          anchor='w', font=LABEL_FONT)
-        self.exp_curr_lbl.grid(row=2, column=2, sticky=tk.NSEW, padx=10, pady=5)
+        self.exp_curr_lbl.grid(row=2, column=2, sticky=ctk.NSEW, padx=10, pady=5)
         # self.exp_curr_var = tk.StringVar()
         self.exp_curr = ctk.CTkComboBox(self.expense_frame, values=CURRENCIES,
                                         width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT,
@@ -117,7 +117,7 @@ class App(customtkinter.CTk, Conversion):
 
         # buttons
         self.button_frame = ctk.CTkFrame(self)
-        self.button_frame.pack(expand=True, fill=tk.BOTH)
+        self.button_frame.pack(expand=True, fill=ctk.BOTH)
         self.save_btn = ctk.CTkButton(self.button_frame, text="Save Transaction", width=BUTTON_WIDTH,
                                       height=BUTTON_HEIGHT, font=BUTTON_FONT,
                                       command=lambda: self.create_transaction_toplevel())
@@ -125,6 +125,10 @@ class App(customtkinter.CTk, Conversion):
         self.query_btn = ctk.CTkButton(self.button_frame, text="Query / Update",
                                        width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT)
         self.query_btn.grid(row=2, column=1, padx=3)
+
+    def create_starting_balance_tl(self):
+        starting_balance = StartingBalanceToplevel()
+        return starting_balance
 
     def create_transaction_toplevel(self):
         transaction_type = self.transaction_var.get()
@@ -172,6 +176,13 @@ class App(customtkinter.CTk, Conversion):
 
 
 if __name__ == '__main__':
+    db = Database("expenses.db")
+
     app = App()
     app.setup_ui()
     app.mainloop()
+    starting_balance = db.get_starting_balance()
+    if starting_balance is None:
+        # If no starting balance exists, create the StartingBalanceToplevel
+        starting_balance_window = StartingBalanceToplevel()
+        # You can add logic to handle user input and save
