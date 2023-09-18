@@ -1,21 +1,20 @@
 import sqlite3
 from icecream import ic
 
+
 class Database:
 
     def __init__(self, db_path):
         self.expenses_db = db_path
         self.conn = sqlite3.connect(self.expenses_db)
         self.cursor = self.conn.cursor()
-        self.expense_type_table = self.create_exp_type_table()
+        self.expense_type_table = self.create_expense_type_table()
         self.expense_record_table = self.create_expense_table()
-        self.deposit_record_table = self.create_deposit_table()
-        self.balance_table = self.create_balance_table()
         self.add_expense_type()
 
     # ------------------------ Table Creation ---------------------------- #
 
-    def create_exp_type_table(self):
+    def create_expense_type_table(self):
         category_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Expense_type(
             type_id integer PRIMARY KEY AUTOINCREMENT,
             type_name text NOT NULL UNIQUE)""")
@@ -35,32 +34,6 @@ class Database:
         """)
         self.conn.commit()
         return expense_table
-
-    def create_deposit_table(self):
-        deposit_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Deposit_record(
-            deposit_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            date TEXT NOT NULL, 
-            dep_curr TEXT NOT NULL,
-            dep_amt DECIMAL (10, 2) NOT NULL,
-            usd TEXT NOT NULL)        
-        """)
-        self.conn.commit()
-        return deposit_table
-
-    def create_balance_table(self):
-        balance_table = self.cursor.execute("""CREATE TABLE IF NOT EXISTS Balance_record(
-            transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            starting_balance DECIMAL(10,2) NOT NULL,
-            transaction_type TEXT NOT NULL CHECK(transaction_type IN ('credit', 'debit')),
-            transaction_amount DECIMAL(10,2) NOT NULL,
-            end_balance DECIMAL(10,2) NOT NULL,
-            deposit_id_fk INTEGER,
-            expense_id_fk INTEGER,
-            FOREIGN KEY(deposit_id_fk) REFERENCES Deposit_record(deposit_id),
-            FOREIGN KEY(expense_id_fk) REFERENCES Expense_record(expense_id)
-        )""")
-        self.conn.commit()
-        return balance_table
 
     # ------------------------ Expense Operations ---------------------------- #
 
@@ -99,9 +72,6 @@ class Database:
             self.conn.commit()
             print("Expense record saved successfully.")
 
-            # Record the balance transaction (debit)
-            self.record_balance_transaction('debit', float(usd), amt)
-
         except sqlite3.Error as e:
             print("SQLite error:", e)
 
@@ -110,76 +80,5 @@ class Database:
         self.cursor.execute("SELECT * FROM Expense_record")
         print(self.cursor.fetchall())
         self.conn.commit()
-
-    # def get_last_expense_id(self):
-    #     try:
-    #         self.cursor.execute("SELECT MAX(expense_id) FROM Expense_record")
-    #         last_expense_id = self.cursor.fetchone()[0]
-    #         if last_expense_id is None:
-    #             return 0  # If no records exist yet
-    #         return last_expense_id
-    #     except sqlite3.Error as e:
-    #         print("SQLite error:", e)
-    #         return 0  # Handle the error gracefully
-
-    # ------------------------ Deposit Operations ---------------------------- #
-
-    def record_deposit(self, date, curr, amt, usd):
-        try:
-            # Record the deposit in the Deposit_record table
-            self.cursor.execute(
-                """INSERT INTO Deposit_record(date, dep_curr, dep_amt, usd)
-                   VALUES (?, ?, ?, ?)""",
-                (date, curr, amt, usd)
-            )
-            self.conn.commit()
-            print("Deposit record saved successfully.")
-
-            # Record the balance transaction (credit)
-            self.record_balance_transaction('credit', float(usd), amt)
-
-        except sqlite3.Error as e:
-            print("SQLite error:", e)
-
-    # ------------------------ Balance Operations ---------------------------- #
-    def record_balance_transaction(self, transaction_type, usd_amount, transaction_amount):
-        # Get the current balance from the database
-        current_balance = self.get_current_balance()
-
-        # Convert transaction_amount to a float if it's not already
-        transaction_amount = float(transaction_amount)
-
-        # Calculate the new balance based on the transaction type
-        if transaction_type == 'debit':
-            new_balance = current_balance - transaction_amount
-        elif transaction_type == 'credit':
-            new_balance = current_balance + transaction_amount
-        else:
-            raise ValueError("Invalid transaction type. Use 'debit' or 'credit'.")
-
-        # Update the balance in the database
-        self.update_balance(new_balance)
-
-        # Insert the transaction record
-        self.insert_transaction(transaction_type, usd_amount, transaction_amount, new_balance)
-
-    def get_starting_balance(self):
-        try:
-            # Check if there are any records in the Balance_record table
-            self.cursor.execute("SELECT COUNT(*) FROM Balance_record")
-            record_count = self.cursor.fetchone()[0]
-
-            if record_count == 0:
-                # If there are no records, return True to prompt for an initial deposit
-                return True
-            else:
-                # If there are records, retrieve the end balance from the most recent record
-                self.cursor.execute("SELECT end_balance FROM Balance_record ORDER BY transaction_id DESC LIMIT 1")
-                end_balance = self.cursor.fetchone()[0]
-                return end_balance
-
-        except sqlite3.Error as e:
-            print("SQLite error:", e)
-            return None
 
 
