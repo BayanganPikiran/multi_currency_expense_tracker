@@ -1,12 +1,13 @@
-import customtkinter
 import customtkinter as ctk
 from constants import *
 from tkcalendar import DateEntry
+from tkinter import messagebox
+from database import Database
 
 
 class ExpenseToplevel(ctk.CTkToplevel):
 
-    def __init__(self, date, description, exp_type, currency, amount):
+    def __init__(self, date, description, exp_type, currency, amount, usd):
         # Window
         ctk.CTkToplevel.__init__(self)
         self.geometry('300x150')
@@ -38,10 +39,6 @@ class ExpenseToplevel(ctk.CTkToplevel):
         tl_exp_amt = ctk.CTkLabel(self.label_frame, text=f"Amount: {currency} {amount}",
                                   font=LABEL_FONT)
         tl_exp_amt.pack(expand=True, fill=ctk.BOTH)
-        # tl_exp_amt.grid(row=3, column=0)
-        # tl_btn = ctk.CTkButton(self.btn_frame, text="Save Expense")
-        # tl_btn.pack(expand=True, fill=ctk.BOTH)
-        # # tl_btn.configure(command=lambda: (self.get_expense_info(), self.convert_to_usd(), self.destroy()))
 
 
 class DepositTopLevel(ctk.CTkToplevel):
@@ -82,6 +79,7 @@ class StartingBalanceToplevel(ctk.CTkToplevel):
         self.title("Starting Balance")
         self.wm_transient()
         self.balance_var = ctk.StringVar()
+        self.bal_curr_var = ctk.StringVar()
         # frames
         self.date_frame = ctk.CTkFrame(self, width=DATE_FRAME_WIDTH, height=DATE_FRAME_HEIGHT)
         self.date_frame.pack(expand=True, fill=ctk.BOTH)
@@ -102,9 +100,25 @@ class StartingBalanceToplevel(ctk.CTkToplevel):
         self.balance_entry.grid(row=1, column=0)
         self.balance_curr_lbl = ctk.CTkLabel(self.entry_frame, text="Balance currency", anchor='w', font=LABEL_FONT)
         self.balance_curr_lbl.grid(row=0, column=1)
-        self.balance_curr = ctk.CTkComboBox(self.entry_frame, values=CURRENCIES,
+        self.balance_curr = ctk.CTkComboBox(self.entry_frame, values=CURRENCIES, variable=self.bal_curr_var,
                                             width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT)
         self.balance_curr.grid(row=1, column=1)
         # button
-        self.save_btn = ctk.CTkButton(self.button_frame, text="Save starting balance", font=BUTTON_FONT)
+        self.save_btn = ctk.CTkButton(self.button_frame, text="Save starting balance", font=BUTTON_FONT,
+                                      command=self.save_starting_balance)  # Change the command
         self.save_btn.pack(expand=True, fill=ctk.BOTH)
+
+    def save_starting_balance(self):
+        # Retrieve the values from the input fields
+        start_date = self.start_date.get()
+        balance = self.balance_var.get()
+        balance_currency = self.bal_curr_var.get()
+
+        # Validate and record the initial deposit
+        if not start_date or not balance or not balance_currency:
+            messagebox.showerror("Error", "Please fill in all fields.")
+        else:
+            # Record the initial deposit in the Database
+            db.record_deposit(start_date, balance_currency, balance, balance)
+            messagebox.showinfo("Success", "Initial deposit saved successfully.")
+            self.destroy()  # Close the StartingBalanceToplevel

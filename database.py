@@ -1,5 +1,5 @@
 import sqlite3
-
+from icecream import ic
 
 class Database:
 
@@ -124,51 +124,62 @@ class Database:
 
     # ------------------------ Deposit Operations ---------------------------- #
 
-    def record_deposit(self):
-        def record_deposit(self, date, curr, amt, usd):
-            try:
-                # Record the deposit in the Deposit_record table
-                self.cursor.execute(
-                    """INSERT INTO Deposit_record(date, dep_curr, dep_amt, usd)
-                       VALUES (?, ?, ?, ?)""",
-                    (date, curr, amt, usd)
-                )
-                self.conn.commit()
-                print("Deposit record saved successfully.")
-
-                # Record the balance transaction (credit)
-                self.record_balance_transaction('credit', float(usd), amt)
-
-            except sqlite3.Error as e:
-                print("SQLite error:", e)
-
-    # ------------------------ Balance Operations ---------------------------- #
-    def record_balance_transaction(self, transaction_type, starting_balance, transaction_amount):
-        # Calculate end_balance based on the transaction type (credit or debit)
-        if transaction_type == 'credit':
-            end_balance = starting_balance + transaction_amount
-        elif transaction_type == 'debit':
-            end_balance = starting_balance - transaction_amount
-        else:
-            raise ValueError("Invalid transaction_type")
-
-        # Insert the transaction into the Balance_record table
+    def record_deposit(self, date, curr, amt, usd):
         try:
+            # Record the deposit in the Deposit_record table
             self.cursor.execute(
-                """INSERT INTO Balance_record(starting_balance, transaction_type, transaction_amount, end_balance)
+                """INSERT INTO Deposit_record(date, dep_curr, dep_amt, usd)
                    VALUES (?, ?, ?, ?)""",
-                (starting_balance, transaction_type, transaction_amount, end_balance)
+                (date, curr, amt, usd)
             )
             self.conn.commit()
-            print("Balance record saved successfully.")
+            print("Deposit record saved successfully.")
+
+            # Record the balance transaction (credit)
+            self.record_balance_transaction('credit', float(usd), amt)
+
         except sqlite3.Error as e:
             print("SQLite error:", e)
+
+    # ------------------------ Balance Operations ---------------------------- #
+    def record_balance_transaction(self, transaction_type, usd_amount, transaction_amount):
+        # Get the current balance from the database
+        current_balance = self.get_current_balance()
+
+        # Convert transaction_amount to a float if it's not already
+        transaction_amount = float(transaction_amount)
+
+        # Calculate the new balance based on the transaction type
+        if transaction_type == 'debit':
+            new_balance = current_balance - transaction_amount
+        elif transaction_type == 'credit':
+            new_balance = current_balance + transaction_amount
+        else:
+            raise ValueError("Invalid transaction type. Use 'debit' or 'credit'.")
+
+        # Update the balance in the database
+        self.update_balance(new_balance)
+
+        # Insert the transaction record
+        self.insert_transaction(transaction_type, usd_amount, transaction_amount, new_balance)
 
     def get_starting_balance(self):
         try:
-            self.cursor.execute("SELECT starting_balance FROM Balance_record ORDER BY transaction_id ASC LIMIT 1")
-            starting_balance = self.cursor.fetchone()
-            return starting_balance[0] if starting_balance else None
+            # Check if there are any records in the Balance_record table
+            self.cursor.execute("SELECT COUNT(*) FROM Balance_record")
+            record_count = self.cursor.fetchone()[0]
+
+            if record_count == 0:
+                # If there are no records, return True to prompt for an initial deposit
+                return True
+            else:
+                # If there are records, retrieve the end balance from the most recent record
+                self.cursor.execute("SELECT end_balance FROM Balance_record ORDER BY transaction_id DESC LIMIT 1")
+                end_balance = self.cursor.fetchone()[0]
+                return end_balance
+
         except sqlite3.Error as e:
             print("SQLite error:", e)
             return None
+
+

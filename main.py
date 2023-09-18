@@ -1,25 +1,22 @@
 import customtkinter as ctk
+import tkinter as tk
 from constants import *
 from tkcalendar import Calendar, DateEntry
 # pip install forex-python
 from forex_python.converter import CurrencyCodes, CurrencyRates, RatesNotAvailableError
 from database import Database
-from conversion import Conversion
+from transact import *
 from toplevel import *
+from icecream import ic
 import os
 
 # --------------------------------------------
 
-customtkinter.set_appearance_mode("dark")
-# Initialize the Database instance
+ctk.set_appearance_mode("dark")
 
-
-class App(customtkinter.CTk, Conversion):
+class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        # Conversion.__init__(self, self.date_var, self.transaction_var, self.curr_var,
-        #                     self.curr_amt_var, self.exp_type_var, self.exp_desc_var )
-        # Database.__init__(self, "expenses.db")
         # configure window
         self.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
         self.title("Watch Your Dong")
@@ -32,7 +29,6 @@ class App(customtkinter.CTk, Conversion):
         self.expense_curr_var = ctk.StringVar()
         self.exp_desc_var = ctk.StringVar()
         self.exp_type_var = ctk.StringVar()
-        # date
 
     def setup_ui(self):
         # create date frame and widgets
@@ -44,7 +40,6 @@ class App(customtkinter.CTk, Conversion):
         self.date_var = self.date_pick.get_date()
         self.date_pick.grid(row=0, column=1, padx=18, pady=5)
         # radio button
-        # self.transaction_var = tk.IntVar()
         self.trans_type_btn1 = ctk.CTkRadioButton(self.date_frame, text="Deposit",
                                                   variable=self.transaction_var, value=0)
         self.trans_type_btn1.grid(row=0, column=2, padx=10)
@@ -54,8 +49,6 @@ class App(customtkinter.CTk, Conversion):
         # deposit frame and widgets
         self.deposit_frame = ctk.CTkFrame(self)
         self.deposit_frame.pack(expand=True, fill=ctk.BOTH)
-        # self.curr_amt_var = tk.StringVar()
-        # self.deposit_amt_var = tk.StringVar()
         self.dep_entry_lbl = ctk.CTkLabel(self.deposit_frame, text="Deposit amount",
                                           anchor='w', font=LABEL_FONT)
         self.dep_entry_lbl.grid(row=0, column=0, padx=10, sticky=ctk.NSEW)
@@ -63,8 +56,6 @@ class App(customtkinter.CTk, Conversion):
                                           width=ENTRY_WIDTH, height=ENTRY_HEIGHT,
                                           textvariable=self.deposit_amt_var)
         self.deposit_entry.grid(row=1, column=0, padx=3, pady=3, sticky=ctk.NSEW)
-        # self.curr_var = tk.StringVar()
-        # self.dep_curr_var = tk.StringVar()
         self.dep_curr_lbl = ctk.CTkLabel(self.deposit_frame, text="Deposit currency",
                                          anchor='w', font=LABEL_FONT)
         self.dep_curr_lbl.grid(row=0, column=1, padx=10, sticky=ctk.NSEW)
@@ -126,15 +117,15 @@ class App(customtkinter.CTk, Conversion):
                                        width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT)
         self.query_btn.grid(row=2, column=1, padx=3)
 
-    def create_starting_balance_tl(self):
-        starting_balance = StartingBalanceToplevel()
-        return starting_balance
+
 
     def create_transaction_toplevel(self):
         transaction_type = self.transaction_var.get()
         if transaction_type == 0:
+            ic(transaction_type, "deposit")
             self.create_deposit_toplevel()
         elif transaction_type == 1:
+            ic(transaction_type, "expense")
             self.create_expense_toplevel()
 
     def get_expense_info(self):
@@ -153,10 +144,19 @@ class App(customtkinter.CTk, Conversion):
         date = self.date_var
         currency = self.deposit_curr_var.get()
         amount = self.deposit_amt_var.get()
+        ic(date, currency, amount)
+
+        # Create an instance of ConvertToUSD
+        converter = ConvertToUSD(currency, amount)
+
+        # Calculate the USD amount
+        usd_amount = converter.convert_to_usd()
+
         # create DepositToplevel instance
-        dep_toplevel = DepositTopLevel(date, currency, amount)
+        dep_toplevel = DepositTopLevel(date, currency, amount, usd_amount)
+
         save_button = ctk.CTkButton(dep_toplevel, text="Save Deposit",
-                                    command=lambda: [self.save_expense, self.destroy()])
+                                    command=lambda: [self.save_expense(dep_toplevel), dep_toplevel.destroy()])
         save_button.pack(in_=dep_toplevel.button_frame, expand=True, fill=ctk.BOTH)
 
     def create_expense_toplevel(self):
@@ -166,23 +166,31 @@ class App(customtkinter.CTk, Conversion):
         exp_type = self.exp_type_var.get()
         currency = self.expense_curr_var.get()
         amount = self.expense_amt_var.get()
-        # create ExpenseToplevel instance
-        save_toplevel = ExpenseToplevel(date, description, exp_type, currency, amount)
+        ic(date, description, exp_type, currency, amount)
 
-        # create button
+        # Create an instance of SaveTransaction with the required attributes
+        save_transaction = SaveTransaction(date, 1, currency, amount, exp_type, description)
+
+        # Calculate the USD amount using convert_to_usd from SaveTransaction
+        usd_amount = save_transaction.convert_to_usd()
+
+        # create ExpenseToplevel instance with the additional usd_amount argument
+        save_toplevel = ExpenseToplevel(date, description, exp_type, currency, amount, usd_amount)
+
         save_button = ctk.CTkButton(save_toplevel, text="Save Expense",
-                                    command=lambda: [self.save_expense, self.destroy()])
+                                    command=lambda: [save_transaction.save_expense(), save_toplevel.destroy()])
         save_button.pack(in_=save_toplevel.btn_frame, expand=True, fill=ctk.BOTH)
+
+        # def create_starting_balance_tl(self):
+        #     starting_balance = StartingBalanceToplevel()
+        #     save_btn = ctk.CTkButton(starting_balance, text="Save starting balance",
+        #                              command=lambda: [self.record_balance_transaction('credit', 0),
+        #                                               self.destroy()])
+        #     save_btn.pack(in_=starting_balance.button_frame, expand=True, fill=ctk.BOTH)
 
 
 if __name__ == '__main__':
-    db = Database("expenses.db")
 
     app = App()
     app.setup_ui()
     app.mainloop()
-    starting_balance = db.get_starting_balance()
-    if starting_balance is None:
-        # If no starting balance exists, create the StartingBalanceToplevel
-        starting_balance_window = StartingBalanceToplevel()
-        # You can add logic to handle user input and save
