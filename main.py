@@ -23,7 +23,7 @@ class App(ctk.CTk):
         self.title("Watch Your Dong")
         # Stringvars, Intvars and Vars
         self.date_var = None  # We cannot create a DateEntry here and call it in the setup_ui()
-        self.transaction_var = ctk.IntVar()
+        self.btn_var = ctk.IntVar()
         self.deposit_amt_var = ctk.StringVar()
         self.expense_amt_var = ctk.StringVar()
         self.deposit_curr_var = ctk.StringVar()
@@ -40,6 +40,11 @@ class App(ctk.CTk):
         self.date_pick = DateEntry(self.date_frame, font=DATE_ENTRY_FONT)
         self.date_var = self.date_pick.get_date()
         self.date_pick.grid(row=0, column=1, padx=18, pady=5)
+        # radio buttons
+        self.expense_button = ctk.CTkRadioButton(self.date_frame, text="Expense", variable=self.btn_var, value=0)
+        self.expense_button.grid(row=0, column=2, padx=15, pady=5)
+        self.query_button = ctk.CTkRadioButton(self.date_frame, text="Query", variable=self.btn_var, value=1)
+        self.query_button.grid(row=0, column=3, pady=5)
 
         # expense frame
         self.expense_frame = ctk.CTkFrame(self)
@@ -89,19 +94,15 @@ class App(ctk.CTk):
                                       height=BUTTON_HEIGHT, font=BUTTON_FONT,
                                       command=lambda: self.create_expense_toplevel())
         self.save_btn.grid(row=2, column=0, padx=3)
-        self.query_btn = ctk.CTkButton(self.button_frame, text="Query / Update",
-                                       width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT)
-        self.query_btn.grid(row=2, column=1, padx=3)
+        self.run_query_btn = ctk.CTkButton(self.button_frame, text="Query / Update",
+                                           width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT,
+                                           command=lambda: self.create_query_toplevel())
+        self.run_query_btn.grid(row=2, column=1, padx=3)
 
     def get_expense_info(self):
         print("The following info will later be rolled into a table insert:")
         print(f"Date: {self.date_var}")
-        if self.transaction_var == 0:
-            print(f"Deposit, {self.date_var},"
-                  f" deposit amount: {self.deposit_curr_var.get()} {self.deposit_amt_var.get()}")
-        elif self.transaction_var == 1:
-            print(f"Expense, {self.date_var},"
-                  f" expense amount: {self.expense_curr_var.get()} {self.expense_amt_var.get()}")
+        print(f"Expense, {self.date_var},expense amount: {self.expense_curr_var.get()} {self.expense_amt_var.get()}")
         print(f"Expense description: {self.exp_desc_var.get()}, expense type: {self.exp_type_var.get()}")
 
     def create_expense_toplevel(self):
@@ -125,6 +126,12 @@ class App(ctk.CTk):
         save_button = ctk.CTkButton(save_toplevel, text="Save Expense",
                                     command=lambda: [save_transaction.save_expense(), save_toplevel.destroy()])
         save_button.pack(in_=save_toplevel.btn_frame, expand=True, fill=ctk.BOTH)
+
+    # def create_query_toplevel(self):
+    #     query = QueryToplevel()
+    #     execute_btn = ctk.CTkButton(query, text="Execute query", font=BUTTON_FONT, command=lambda: query.destroy())
+    #     execute_btn.grid(in_=query.btn_frame, row=0, column=2, sticky=ctk.NSEW)
+
 
 
 if __name__ == '__main__':
