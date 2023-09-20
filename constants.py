@@ -2,8 +2,9 @@
 TILE_LENGTH = 8
 
 # App Dimensions
-APP_NUM_ROWS = 32
 APP_NUM_COLS = 64
+APP_NUM_ROWS = 40
+
 
 APP_WIDTH = TILE_LENGTH * APP_NUM_COLS
 APP_HEIGHT = TILE_LENGTH * APP_NUM_ROWS
@@ -25,15 +26,28 @@ COMBOBOX_COLS = 23
 COMBOBOX_WIDTH = TILE_LENGTH * COMBOBOX_COLS
 COMBOBOX_HEIGHT = TILE_LENGTH * COMBOBOX_ROWS
 
+QUERY_COLS = 5
+QUERY_BOX_WIDTH = TILE_LENGTH * QUERY_COLS
+
 BUTTON_ROWS = 5
 BUTTON_COLS = 31
 BUTTON_WIDTH = TILE_LENGTH * BUTTON_COLS
 BUTTON_HEIGHT = TILE_LENGTH * BUTTON_ROWS
 
-# Expenses
+# Query Toplevel
+QUERY_NUM_COLS = 90
+QUERY_NUM_ROWS = 32
+
+QUERY_WIDTH = TILE_LENGTH * APP_NUM_COLS
+QUERY_HEIGHT = TILE_LENGTH * APP_NUM_ROWS
+
+
+
+# Lists & Dictionaries
 EXPENSE_TYPES = ['clothing', 'electricity', 'entertainment', 'fruit', 'groceries', 'health', 'household items',
                  'internet', 'misc', 'petrol', 'rent', 'restaurant', 'supplements', 'travel', 'visas']
 CURRENCIES = ['IDR', 'MYR', 'PHP', 'SGD', 'THB', 'USD']
+METRICS = ['percent', 'total']
 
 
 AVAILABLE_CURRENCIES = {'AUD': 1.5298140043763675,

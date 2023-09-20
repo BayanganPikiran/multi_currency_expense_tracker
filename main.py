@@ -57,7 +57,7 @@ class App(ctk.CTk):
         self.exp_desc_entry = ctk.CTkEntry(self.expense_frame, placeholder_text="Enter description here",
                                            width=ENTRY_WIDTH, height=ENTRY_HEIGHT,
                                            textvariable=self.exp_desc_var)
-        self.exp_desc_entry.grid(row=1, column=0, columnspan=2, padx=3, pady=3)
+        self.exp_desc_entry.grid(row=1, column=0, padx=3, pady=3)
 
         # expense type
         self.exp_type_lbl = ctk.CTkLabel(self.expense_frame, text="Expense type",
@@ -71,21 +71,43 @@ class App(ctk.CTk):
         # expense exp_amt
         self.expense_amt_lbl = ctk.CTkLabel(self.expense_frame, text="Expense amount",
                                             anchor='w', font=LABEL_FONT)
-        self.expense_amt_lbl.grid(row=2, column=0, sticky=ctk.NSEW, padx=10, pady=5)
+        self.expense_amt_lbl.grid(row=2, column=0, sticky=ctk.NSEW, padx=10)
         self.expense_amt_entry = ctk.CTkEntry(self.expense_frame,
                                               placeholder_text="Enter expense exp_amt here",
                                               width=ENTRY_WIDTH, height=ENTRY_HEIGHT,
                                               textvariable=self.expense_amt_var)  # !!changed here
-        self.expense_amt_entry.grid(row=3, column=0, columnspan=2, padx=3, pady=3)
+        self.expense_amt_entry.grid(row=3, column=0, padx=3, pady=3)
 
         # choose exp_curr for expense
         self.exp_curr_lbl = ctk.CTkLabel(self.expense_frame, text="Expense currency",
                                          anchor='w', font=LABEL_FONT)
-        self.exp_curr_lbl.grid(row=2, column=2, sticky=ctk.NSEW, padx=10, pady=5)
+        self.exp_curr_lbl.grid(row=2, column=2, sticky=ctk.NSEW, padx=10)
         self.exp_curr = ctk.CTkComboBox(self.expense_frame, values=CURRENCIES,
                                         width=COMBOBOX_WIDTH, height=COMBOBOX_HEIGHT,
                                         variable=self.expense_curr_var)
         self.exp_curr.grid(row=3, column=2)
+
+        # query frame
+        self.query_frame = ctk.CTkFrame(self)
+        self.query_frame.pack(expand=True, fill=ctk.BOTH)
+
+        # query widgets
+        self.type_to_query_lbl = ctk.CTkLabel(self.query_frame, text="Query", anchor='w', font=LABEL_FONT)
+        self.type_to_query_lbl.grid(row=0, column=0, padx=10, sticky=ctk.NSEW)
+        self.type_to_query = ctk.CTkComboBox(self.query_frame, width=152, height=ENTRY_HEIGHT, values=EXPENSE_TYPES)
+        self.type_to_query.grid(row=1, column=0, padx=3, pady=5, sticky=ctk.NSEW)
+        self.metric_lbl = ctk.CTkLabel(self.query_frame, text="Metric", anchor='w', font=LABEL_FONT)
+        self.metric_lbl.grid(row=0, column=1, padx=10, sticky=ctk.NSEW)
+        self.metric_box = ctk.CTkComboBox(self.query_frame, width=152, height=ENTRY_HEIGHT, values=METRICS)
+        self.metric_box.grid(row=1, column=1, padx=3, pady=5, sticky=ctk.NSEW)
+        self.date_from_lbl = ctk.CTkLabel(self.query_frame, text="Date from", font=LABEL_FONT)
+        self.date_from_lbl.grid(row=0, column=2, padx=10, sticky=ctk.NSEW)
+        self.date_from_entry = DateEntry(self.query_frame, width=6, font=DATE_ENTRY_FONT)
+        self.date_from_entry.grid(row=1, column=2, padx=10)
+        self.date_to_lbl = ctk.CTkLabel(self.query_frame, text="Date to", font=LABEL_FONT)
+        self.date_to_lbl.grid(row=0, column=3, padx=10)
+        self.date_to_entry = DateEntry(self.query_frame, width=6, font=DATE_ENTRY_FONT)
+        self.date_to_entry.grid(row=1, column=3, padx=10)
 
         # buttons
         self.button_frame = ctk.CTkFrame(self)
