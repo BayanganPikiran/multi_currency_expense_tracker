@@ -83,62 +83,50 @@ class Database:
 
     # ------------------------ Expense Query Functions ---------------------------- #
 
-    def calculate_total_expenses(self, expense_type=None, from_date=None, to_date=None):
+    def calculate_total_expenses_usd(self, expense_type=None, from_date=None, to_date=None):
         try:
-            # Construct the base query
-            query = """SELECT SUM(exp_amt) FROM Expense_record"""
-
-            # Create a list to store the query parameters
+            query = """SELECT SUM(usd) FROM Expense_record"""
             params = []
 
-            # Add WHERE clause if expense_type is specified
-            if expense_type:
+            if expense_type != "all":  # Check if expense_type is not "all"
                 query += " WHERE type_fk = (SELECT type_id FROM Expense_type WHERE type_name = ?)"
                 params.append(expense_type)
 
-            # Add date filter if from_date and to_date are specified
             if from_date and to_date:
                 query += " AND date BETWEEN ? AND ?"
                 params.extend([from_date, to_date])
 
-            # Execute the query with parameters
             self.cursor.execute(query, params)
-            result = self.cursor.fetchone()
+            total_usd = self.cursor.fetchone()[0] or 0.0
 
-            if result[0] is not None:
-                return result[0]
-            else:
-                return 0.0
-
+            return round(total_usd, 2)
         except sqlite3.Error as e:
             print("SQLite error:", e)
             return 0.0
 
-    def calculate_percentage_of_total(self, expense_type=None, from_date=None, to_date=None):
+    def calculate_percentage_of_total_usd(self, expense_type=None, from_date=None, to_date=None):
         try:
-            # Calculate the total expenses first
-            total_expenses = self.calculate_total_expenses(expense_type, from_date, to_date)
+            total_expenses_usd = self.calculate_total_expenses_usd("all", from_date, to_date)
 
-            if total_expenses > 0:
+            if total_expenses_usd > 0:
                 # Construct a query to calculate the percentage spent on the chosen expense type
-                query = """SELECT SUM(exp_amt) FROM Expense_record"""
+                query = """SELECT SUM(usd) FROM Expense_record"""
 
-                # Add WHERE clause if expense_type is specified
-                if expense_type:
+                # Add WHERE clause if expense_type is specified and not "all"
+                params = []
+                if expense_type != "all":
                     query += " WHERE type_fk = (SELECT type_id FROM Expense_type WHERE type_name = ?)"
+                    params.append(expense_type)
 
                 # Execute the query with parameters
-                self.cursor.execute(query, [expense_type])
-                result = self.cursor.fetchone()
+                self.cursor.execute(query, params)
+                total_expense_type_usd = self.cursor.fetchone()[0] or 0.0
 
-                if result[0] is not None:
-                    percentage = (result[0] / total_expenses) * 100
-                    return round(percentage, 2)
-                else:
-                    return 0.0
+                percentage = (total_expense_type_usd / total_expenses_usd) * 100
+                return round(percentage, 2)
             else:
                 return 0.0
-
         except sqlite3.Error as e:
             print("SQLite error:", e)
             return 0.0
+
