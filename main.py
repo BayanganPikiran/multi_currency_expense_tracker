@@ -8,6 +8,7 @@ from database import Database
 from transact import *
 from toplevel import *
 from icecream import ic
+import tkinter.messagebox as messagebox
 import os
 
 # --------------------------------------------
@@ -30,6 +31,8 @@ class App(ctk.CTk):
         self.expense_curr_var = ctk.StringVar()
         self.exp_desc_var = ctk.StringVar()
         self.exp_type_var = ctk.StringVar()
+        self.query_var = ctk.StringVar()
+        self.query_metric_var = ctk.StringVar()
 
     def setup_ui(self):
         # create date frame and widgets
@@ -94,11 +97,13 @@ class App(ctk.CTk):
         # query widgets
         self.type_to_query_lbl = ctk.CTkLabel(self.query_frame, text="Query", anchor='w', font=LABEL_FONT)
         self.type_to_query_lbl.grid(row=0, column=0, padx=10, sticky=ctk.NSEW)
-        self.type_to_query = ctk.CTkComboBox(self.query_frame, width=152, height=ENTRY_HEIGHT, values=EXPENSE_TYPES)
+        self.type_to_query = ctk.CTkComboBox(self.query_frame, width=152, height=ENTRY_HEIGHT,
+                                             values=EXPENSE_QUERY_TYPES, variable=self.query_var)
         self.type_to_query.grid(row=1, column=0, padx=3, pady=5, sticky=ctk.NSEW)
         self.metric_lbl = ctk.CTkLabel(self.query_frame, text="Metric", anchor='w', font=LABEL_FONT)
         self.metric_lbl.grid(row=0, column=1, padx=10, sticky=ctk.NSEW)
-        self.metric_box = ctk.CTkComboBox(self.query_frame, width=152, height=ENTRY_HEIGHT, values=METRICS)
+        self.metric_box = ctk.CTkComboBox(self.query_frame, width=152, height=ENTRY_HEIGHT,
+                                          values=METRICS, variable=self.query_metric_var)
         self.metric_box.grid(row=1, column=1, padx=3, pady=5, sticky=ctk.NSEW)
         self.date_from_lbl = ctk.CTkLabel(self.query_frame, text="Date from", font=LABEL_FONT)
         self.date_from_lbl.grid(row=0, column=2, padx=10, sticky=ctk.NSEW)
@@ -120,6 +125,22 @@ class App(ctk.CTk):
                                            width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT,
                                            command=lambda: self.create_query_toplevel())
         self.run_query_btn.grid(row=2, column=1, padx=3)
+
+    def route_query(self):
+        if self.btn_var == 1:
+            if self.query_metric_var == 'percent':
+                self.query_percent()
+            elif self.query_metric_var == 'total':
+                self.query_total()
+        elif self.btn_var == 0:
+            messagebox.showerror("Incorrect Operation Type", """You chose to record an expense but are
+             trying to query.  Please choose the correct radiobutton to continue""")
+
+    def query_percent(self):
+        pass
+
+    def query_total(self):
+        pass
 
     def get_expense_info(self):
         print("The following info will later be rolled into a table insert:")

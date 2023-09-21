@@ -34,18 +34,12 @@ BUTTON_COLS = 31
 BUTTON_WIDTH = TILE_LENGTH * BUTTON_COLS
 BUTTON_HEIGHT = TILE_LENGTH * BUTTON_ROWS
 
-# Query Toplevel
-QUERY_NUM_COLS = 90
-QUERY_NUM_ROWS = 32
-
-QUERY_WIDTH = TILE_LENGTH * APP_NUM_COLS
-QUERY_HEIGHT = TILE_LENGTH * APP_NUM_ROWS
-
-
 
 # Lists & Dictionaries
 EXPENSE_TYPES = ['clothing', 'electricity', 'entertainment', 'fruit', 'groceries', 'health', 'household items',
                  'internet', 'misc', 'petrol', 'rent', 'restaurant', 'supplements', 'travel', 'visas']
+EXPENSE_QUERY_TYPES = ['all', 'clothing', 'electricity', 'entertainment', 'fruit', 'groceries', 'health',
+                       'household items', 'internet', 'misc', 'petrol', 'rent', 'restaurant', 'supplements', 'travel', 'visas']
 CURRENCIES = ['IDR', 'MYR', 'PHP', 'SGD', 'THB', 'USD']
 METRICS = ['percent', 'total']
 
