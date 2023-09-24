@@ -5,6 +5,7 @@ from tkcalendar import Calendar, DateEntry
 # pip install forex-python
 from forex_python.converter import CurrencyCodes, CurrencyRates, RatesNotAvailableError
 from database import Database
+from datetime import datetime
 from transact import *
 from toplevel import *
 from icecream import ic
@@ -16,14 +17,14 @@ import os
 ctk.set_appearance_mode("dark")
 
 
-class App(ctk.CTk):
+class App(ctk.CTk, Database):
     def __init__(self):
         super().__init__()
+        Database.__init__(self, "expenses.db")
         # configure window
         self.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
         self.title("Watch Your Dong")
         # Stringvars, Intvars and Vars
-        self.date_var = None  # We cannot create a DateEntry here and call it in the setup_ui()
         self.btn_var = ctk.IntVar()
         self.deposit_amt_var = ctk.StringVar()
         self.expense_amt_var = ctk.StringVar()
@@ -41,7 +42,7 @@ class App(ctk.CTk):
         self.date_pick_lbl = ctk.CTkLabel(self.date_frame, text='Transaction date:', font=LABEL_FONT)
         self.date_pick_lbl.grid(row=0, column=0, padx=8, pady=5)
         self.date_pick = DateEntry(self.date_frame, font=DATE_ENTRY_FONT)
-        self.date_var = self.date_pick.get_date()
+        self.date_var = self.date_pick.get()
         self.date_pick.grid(row=0, column=1, padx=18, pady=5)
         # radio buttons
         self.expense_button = ctk.CTkRadioButton(self.date_frame, text="Expense", variable=self.btn_var, value=0)
@@ -121,36 +122,59 @@ class App(ctk.CTk):
                                       height=BUTTON_HEIGHT, font=BUTTON_FONT,
                                       command=lambda: self.create_expense_toplevel())
         self.save_btn.grid(row=2, column=0, padx=3)
-        self.run_query_btn = ctk.CTkButton(self.button_frame, text="Query / Update",
+        self.run_query_btn = ctk.CTkButton(self.button_frame, text="Query",
                                            width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT,
-                                           command=lambda: self.create_query_toplevel())
+                                           command=lambda: self.query_total())
         self.run_query_btn.grid(row=2, column=1, padx=3)
 
+    def check_for_dates(self):
+        top_date = self.date_pick.get_date()
+        f_date = self.date_from_entry.get_date()
+        t_date = self.date_to_entry.get_date()
+        print(f"The top date is {top_date}, the from date is {f_date} and the to date is {t_date}")
+
+
     def route_query(self):
-        if self.btn_var == 1:
-            if self.query_metric_var == 'percent':
+        # Get the integer value of btn_var
+        operation = self.btn_var.get()
+        if operation == 1:  # Query operation
+            if self.query_metric_var.get() == 'percent':
                 self.query_percent()
-            elif self.query_metric_var == 'total':
+            elif self.query_metric_var.get() == 'total':
                 self.query_total()
-        elif self.btn_var == 0:
-            messagebox.showerror("Incorrect Operation Type", """You chose to record an expense but are
-             trying to query.  Please choose the correct radiobutton to continue""")
+        elif operation == 0:  # Expense recording
+            messagebox.showerror("Incorrect Operation Type", """
+                You chose to record an expense but are trying to query.
+                Please choose the correct radiobutton to continue.
+            """)
 
     def query_percent(self):
-        pass
+        expense_type = self.query_var.get()
+        from_date = self.date_from_entry.get()
+        to_date = self.date_to_entry.get()
+        percentage = self.calculate_percentage_of_total_usd(expense_type, from_date, to_date)
+        ic(percentage)
 
     def query_total(self):
-        pass
+        expense_type = self.query_var.get()
+        from_date = self.date_from_entry.get_date()
+        to_date = self.date_to_entry.get_date()
+        total = self.query_total_usd(expense_type, from_date, to_date)
+        if total is not None:
+            ic(total)
+        else:
+            ic("No expenses found for the selected criteria")
 
     def get_expense_info(self):
+        date_var = self.date_pick.get_date()
         print("The following info will later be rolled into a table insert:")
-        print(f"Date: {self.date_var}")
-        print(f"Expense, {self.date_var},expense amount: {self.expense_curr_var.get()} {self.expense_amt_var.get()}")
+        print(f"Date: {date_var}")
+        print(f"Expense, {date_var},expense amount: {self.expense_curr_var.get()} {self.expense_amt_var.get()}")
         print(f"Expense description: {self.exp_desc_var.get()}, expense type: {self.exp_type_var.get()}")
 
     def create_expense_toplevel(self):
         # get parameters for ExpenseToplevel
-        date = self.date_var
+        date = self.date_pick.get_date()
         description = self.exp_desc_var.get()
         exp_type = self.exp_type_var.get()
         currency = self.expense_curr_var.get()
@@ -169,11 +193,6 @@ class App(ctk.CTk):
         save_button = ctk.CTkButton(save_toplevel, text="Save Expense",
                                     command=lambda: [save_transaction.save_expense(), save_toplevel.destroy()])
         save_button.pack(in_=save_toplevel.btn_frame, expand=True, fill=ctk.BOTH)
-
-    # def create_query_toplevel(self):
-    #     query = QueryToplevel()
-    #     execute_btn = ctk.CTkButton(query, text="Execute query", font=BUTTON_FONT, command=lambda: query.destroy())
-    #     execute_btn.grid(in_=query.btn_frame, row=0, column=2, sticky=ctk.NSEW)
 
 
 
