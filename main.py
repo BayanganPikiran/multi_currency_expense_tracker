@@ -124,7 +124,7 @@ class App(ctk.CTk, Database):
         self.save_btn.grid(row=2, column=0, padx=3)
         self.run_query_btn = ctk.CTkButton(self.button_frame, text="Query",
                                            width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT,
-                                           command=lambda: self.query_total())
+                                           command=lambda: self.route_query())
         self.run_query_btn.grid(row=2, column=1, padx=3)
 
     def check_for_dates(self):
@@ -150,9 +150,9 @@ class App(ctk.CTk, Database):
 
     def query_percent(self):
         expense_type = self.query_var.get()
-        from_date = self.date_from_entry.get()
-        to_date = self.date_to_entry.get()
-        percentage = self.calculate_percentage_of_total_usd(expense_type, from_date, to_date)
+        from_date = self.date_from_entry.get_date()
+        to_date = self.date_to_entry.get_date()
+        percentage = self.query_percent_of_total(expense_type, from_date, to_date)
         ic(percentage)
 
     def query_total(self):

@@ -27,7 +27,7 @@ class Database:
             date TEXT NOT NULL,
             exp_curr TEXT NOT NULL,
             exp_amt DECIMAL(10,2) NOT NULL,            
-            usd TEXT NOT NULL, 
+            usd REAL NOT NULL, 
             type_fk INTEGER,
             description TEXT,
             FOREIGN KEY(type_fk) REFERENCES Expense_type(type_name));             
@@ -83,50 +83,38 @@ class Database:
 
     # ------------------------ Expense Query Functions ---------------------------- #
 
-    def calculate_total_expenses_usd(self, expense_type=None, from_date=None, to_date=None):
-        try:
-            query = """SELECT SUM(usd) FROM Expense_record"""
-            params = []
+    def check_shit(self, from_date, to_date):
+        query = """SELECT SUM(usd) FROM Expense_record
+                    WHERE date BETWEEN ? AND ?"""
+        parameters = (from_date, to_date)
+        result = self.cursor.execute(query, parameters).fetchone()[0]
+        self.conn.commit()
+        return result
 
-            if expense_type != "all":  # Check if expense_type is not "all"
-                query += " WHERE type_fk = (SELECT type_id FROM Expense_type WHERE type_name = ?)"
-                params.append(expense_type)
+    def query_total_usd(self, expense_type=None, from_date=None, to_date=None):
+        if expense_type == 'all':
+            query = """SELECT SUM(usd) AS query_usd 
+                    FROM Expense_record
+                    WHERE date BETWEEN ? AND ?
+                    """
+            parameters = (from_date, to_date)
+        else:
+            query = """SELECT SUM(usd) AS query_usd
+                    FROM Expense_record
+                    WHERE type_fk = ?
+                    AND date BETWEEN ? AND ?
+                    """
+            parameters = (expense_type, from_date, to_date)
+        result = self.cursor.execute(query, parameters).fetchone()[0]
 
-            if from_date and to_date:
-                query += " AND date BETWEEN ? AND ?"
-                params.extend([from_date, to_date])
+        self.conn.commit()
+        return result
 
-            self.cursor.execute(query, params)
-            total_usd = self.cursor.fetchone()[0] or 0.0
-
-            return round(total_usd, 2)
-        except sqlite3.Error as e:
-            print("SQLite error:", e)
-            return 0.0
-
-    def calculate_percentage_of_total_usd(self, expense_type=None, from_date=None, to_date=None):
-        try:
-            total_expenses_usd = self.calculate_total_expenses_usd("all", from_date, to_date)
-
-            if total_expenses_usd > 0:
-                # Construct a query to calculate the percentage spent on the chosen expense type
-                query = """SELECT SUM(usd) FROM Expense_record"""
-
-                # Add WHERE clause if expense_type is specified and not "all"
-                params = []
-                if expense_type != "all":
-                    query += " WHERE type_fk = (SELECT type_id FROM Expense_type WHERE type_name = ?)"
-                    params.append(expense_type)
-
-                # Execute the query with parameters
-                self.cursor.execute(query, params)
-                total_expense_type_usd = self.cursor.fetchone()[0] or 0.0
-
-                percentage = (total_expense_type_usd / total_expenses_usd) * 100
-                return round(percentage, 2)
-            else:
-                return 0.0
-        except sqlite3.Error as e:
-            print("SQLite error:", e)
-            return 0.0
-
+    def query_percent_of_total(self, expense_type=None, from_date=None, to_date=None):
+        all_expenses = self.query_total_usd('all', from_date, to_date)
+        if expense_type != 'all':
+            selected_expense = self.query_total_usd(expense_type, from_date, to_date)
+            selected_percent = selected_expense / all_expenses
+            return '{:.2%}'.format(selected_percent)
+        else:
+            return "All is 100 percent of all, dipshit!"
