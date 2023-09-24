@@ -139,13 +139,12 @@ class App(ctk.CTk, Database):
         operation = self.btn_var.get()
         if operation == 1:  # Query operation
             if self.query_metric_var.get() == 'percent':
-                self.query_percent()
+                self.create_query_percent_toplevel()
             elif self.query_metric_var.get() == 'total':
-                self.query_total()
+                self.create_query_total_toplevel()
         elif operation == 0:  # Expense recording
             messagebox.showerror("Incorrect Operation Type", """
-                You chose to record an expense but are trying to query.
-                Please choose the correct radiobutton to continue.
+                Do you want to query?\nIf so, choose the "Query" button.
             """)
 
     def query_percent(self):
@@ -193,6 +192,22 @@ class App(ctk.CTk, Database):
         save_button = ctk.CTkButton(save_toplevel, text="Save Expense",
                                     command=lambda: [save_transaction.save_expense(), save_toplevel.destroy()])
         save_button.pack(in_=save_toplevel.btn_frame, expand=True, fill=ctk.BOTH)
+
+    def create_query_total_toplevel(self):
+        from_date = self.date_from_entry.get_date()
+        to_date = self.date_to_entry.get_date()
+        expense_type = self.query_var.get()
+        total = self.query_total_usd(expense_type, from_date, to_date)
+        query_total = QueryTotalToplevel(from_date, to_date, expense_type, total)
+        return query_total
+
+    def create_query_percent_toplevel(self):
+        from_date = self.date_from_entry.get_date()
+        to_date = self.date_to_entry.get_date()
+        expense_type = self.query_var.get()
+        percentage = self.query_percent_of_total(expense_type, from_date, to_date)
+        query_percent_toplevel = QueryPercentToplevel(from_date, to_date, expense_type, percentage)
+        return query_percent_toplevel
 
 
 
