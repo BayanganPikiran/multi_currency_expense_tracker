@@ -44,7 +44,7 @@ class QueryTotalToplevel(ctk.CTkToplevel):
     def __init__(self, from_date, to_date, exp_type, total_spent):
         # Window
         ctk.CTkToplevel.__init__(self)
-        self.geometry('300x150')
+        self.geometry('300x90')
         self.title('Query Results')
         self.wm_transient()
         # Attributes
@@ -62,7 +62,8 @@ class QueryTotalToplevel(ctk.CTkToplevel):
                                      font=LABEL_FONT)
         self.date_lbl.pack()
         self.result_lbl = ctk.CTkLabel(self.result_frame,
-                                       text=f"A total of ${self.total_spent} was spent on {self.exp_type}",
+                                       text=f"A total of ${self.total_spent} was spent on\n"
+                                            f" {self.exp_type} during this period",
                                        font=LABEL_FONT)
         self.result_lbl.pack()
 
@@ -71,7 +72,7 @@ class QueryPercentToplevel(ctk.CTkToplevel):
 
     def __init__(self, from_date, to_date, exp_type, percent_total):
         ctk.CTkToplevel.__init__(self)
-        self.geometry('300x150')
+        self.geometry('300x90')
         self.title('Query Results')
         self.wm_transient()
         # Attributes
@@ -84,10 +85,13 @@ class QueryPercentToplevel(ctk.CTkToplevel):
         self.date_frame.pack()
         self.result_frame = ctk.CTkFrame(self)
         self.result_frame.pack()
+
         # Widgets
         self.date_lbl = ctk.CTkLabel(self.date_frame, text=f"Query period: {self.from_date} - {self.to_date}",
                                      font=LABEL_FONT)
         self.date_lbl.pack()
-        self.result_lbl = ctk.CTkLabel(self.result_frame, text=f"""The amount spent on {self.exp_type} composed
-                                    {self.percent_total} of total expenses during the period""", font=LABEL_FONT)
+        self.result_lbl = ctk.CTkLabel(self.result_frame, text=f"The amount spent on {self.exp_type}\n composed "
+                                                               f"{self.percent_total} of total\n expenses during this period",
+                                       font=LABEL_FONT)
         self.result_lbl.pack()
+

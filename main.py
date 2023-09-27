@@ -10,7 +10,7 @@ from transact import *
 from toplevel import *
 from icecream import ic
 import tkinter.messagebox as messagebox
-import os
+
 
 # --------------------------------------------
 
@@ -133,7 +133,6 @@ class App(ctk.CTk, Database):
         t_date = self.date_to_entry.get_date()
         print(f"The top date is {top_date}, the from date is {f_date} and the to date is {t_date}")
 
-
     def route_query(self):
         # Get the integer value of btn_var
         operation = self.btn_var.get()
@@ -143,9 +142,7 @@ class App(ctk.CTk, Database):
             elif self.query_metric_var.get() == 'total':
                 self.create_query_total_toplevel()
         elif operation == 0:  # Expense recording
-            messagebox.showerror("Incorrect Operation Type", """
-                Do you want to query?\nIf so, choose the "Query" button.
-            """)
+            messagebox.showerror("Incorrect Operation Type", "Choose 'query', not 'expense', to query")
 
     def query_percent(self):
         expense_type = self.query_var.get()
@@ -208,7 +205,6 @@ class App(ctk.CTk, Database):
         percentage = self.query_percent_of_total(expense_type, from_date, to_date)
         query_percent_toplevel = QueryPercentToplevel(from_date, to_date, expense_type, percentage)
         return query_percent_toplevel
-
 
 
 if __name__ == '__main__':

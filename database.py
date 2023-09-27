@@ -112,9 +112,12 @@ class Database:
 
     def query_percent_of_total(self, expense_type=None, from_date=None, to_date=None):
         all_expenses = self.query_total_usd('all', from_date, to_date)
-        if expense_type != 'all':
-            selected_expense = self.query_total_usd(expense_type, from_date, to_date)
-            selected_percent = selected_expense / all_expenses
-            return '{:.2%}'.format(selected_percent)
-        else:
-            return "All is 100 percent of all, dipshit!"
+        selected_expense = self.query_total_usd(expense_type, from_date, to_date)
+        selected_percent = selected_expense / all_expenses
+        return '{:.2%}'.format(selected_percent)
+        # if expense_type != 'all':
+        #     selected_expense = self.query_total_usd(expense_type, from_date, to_date)
+        #     selected_percent = selected_expense / all_expenses
+        #     return '{:.2%}'.format(selected_percent)
+        # else:
+        #     return "All is 100 percent of all, dipshit!"
