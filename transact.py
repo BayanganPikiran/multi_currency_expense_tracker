@@ -1,6 +1,7 @@
 from forex_python.converter import CurrencyCodes, CurrencyRates, RatesNotAvailableError
 import os
 from database import Database
+from datetime import datetime
 from icecream import ic
 
 
@@ -51,7 +52,9 @@ class SaveTransaction(Database, ConvertToUSD):
                 # Call the original function
                 result = func(self, *args, **kwargs)
                 return result
+
             return wrapper
+
         return decorator
 
     def read_expense_log(self, log_file=None):
@@ -96,3 +99,59 @@ class SaveTransaction(Database, ConvertToUSD):
 
         # Print the log message
         print(log_message)
+
+
+class Report(Database):
+
+    def __init__(self, from_date, to_date, filename):
+        Database.__init__(self, "expenses.db")
+        self.from_date = from_date
+        self.to_date = to_date
+        self.filename = filename
+        self.reports_dir = self.create_main_reports_dir()
+
+    def create_main_reports_dir(self):
+        path = './expense_reports'
+        if not os.path.exists(path):
+            return os.mkdir(path)
+        else:
+            pass
+
+    def create_new_report_dir(self):
+        f_date = self.from_date
+        t_date = self.to_date
+        path = self.reports_dir
+        new_dir = f"{path}/expense_report_{f_date}_to_{t_date}"
+        return new_dir
+
+    def create_report_csv(self):
+        f_date = self.from_date
+        t_date = self.to_date
+        report_dir = self.create_new_report_dir()
+        csv_filename = f"report_csv_{f_date}_to_{t_date}"
+        self.generate_report_csv(f_date, t_date, os.path.join(report_dir, csv_filename))
+
+    def create_report_log(self):
+        f_date = self.from_date
+        t_date = self.to_date
+        report_dir = self.create_new_report_dir()
+        expense_log_filename = 'expense_log.txt'
+
+        expense_log_report = []
+        with open(expense_log_filename, 'r') as log_file:
+            for line in log_file:
+                parts = line.split(',')
+                if len(parts) >= 1:
+                    entry_date_str = parts[0].strip()
+                    try:
+                        entry_date = datetime.strptime(entry_date_str,
+                                                       "%d/%m/%y").date()  # Parse string to datetime.date
+                        if f_date <= entry_date <= t_date:
+                            expense_log_report.append(line)
+                    except ValueError:
+                        # Handle lines with invalid date format here
+                        pass
+        # Write the expense log report to a file in the report directory
+        report_log_filename = f"report_log_{f_date}_to_{t_date}.txt"
+        with open(os.path.join(report_dir, report_log_filename), 'w') as report_file:
+            report_file.writelines(expense_log_report)
