@@ -25,7 +25,6 @@ class App(ctk.CTk, Database):
         self.query_var = ctk.StringVar()
         self.query_metric_var = ctk.StringVar()
 
-        self.report_directory = None
 
     def setup_ui(self):
         # create date frame and widgets
