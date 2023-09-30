@@ -1,8 +1,5 @@
 import customtkinter as ctk
 from constants import *
-from tkcalendar import DateEntry
-from tkinter import messagebox
-from database import Database
 
 
 class ExpenseToplevel(ctk.CTkToplevel):
@@ -94,4 +91,3 @@ class QueryPercentToplevel(ctk.CTkToplevel):
                                                                f"{self.percent_total} of total\n expenses during this period",
                                        font=LABEL_FONT)
         self.result_lbl.pack()
-

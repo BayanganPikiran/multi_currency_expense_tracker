@@ -1,19 +1,9 @@
-import customtkinter as ctk
-import tkinter as tk
-from constants import *
-from tkcalendar import Calendar, DateEntry
-# pip install forex-python
-from forex_python.converter import CurrencyCodes, CurrencyRates, RatesNotAvailableError
-from database import Database
-from datetime import datetime
 from transact import *
 from toplevel import *
-from icecream import ic
+from tkcalendar import DateEntry
 import tkinter.messagebox as messagebox
 
-
-# --------------------------------------------
-
+# --------------------------- Window ----------------------------------#
 ctk.set_appearance_mode("dark")
 
 
@@ -23,7 +13,7 @@ class App(ctk.CTk, Database):
         Database.__init__(self, "expenses.db")
         # configure window
         self.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
-        self.title("Watch Your Dong")
+        self.title("Rawatkan Rupiahnya")
         # Stringvars, Intvars and Vars
         self.btn_var = ctk.IntVar()
         self.deposit_amt_var = ctk.StringVar()
@@ -34,6 +24,8 @@ class App(ctk.CTk, Database):
         self.exp_type_var = ctk.StringVar()
         self.query_var = ctk.StringVar()
         self.query_metric_var = ctk.StringVar()
+
+        self.report_directory = None
 
     def setup_ui(self):
         # create date frame and widgets
@@ -121,18 +113,17 @@ class App(ctk.CTk, Database):
         self.save_btn = ctk.CTkButton(self.button_frame, text="Save Transaction", width=BUTTON_WIDTH,
                                       height=BUTTON_HEIGHT, font=BUTTON_FONT,
                                       command=lambda: self.create_expense_toplevel())
-        self.save_btn.grid(row=2, column=0, padx=3)
+        self.save_btn.grid(row=2, column=0, padx=4)
         self.run_query_btn = ctk.CTkButton(self.button_frame, text="Query",
                                            width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT,
                                            command=lambda: self.route_query())
-        self.run_query_btn.grid(row=2, column=1, padx=3)
+        self.run_query_btn.grid(row=2, column=1, padx=4)
+        self.gen_report_btn = ctk.CTkButton(self.button_frame, text="Generate Report",
+                                            width=BUTTON_WIDTH, height=BUTTON_HEIGHT, font=BUTTON_FONT,
+                                            command=lambda: self.create_new_report())
+        self.gen_report_btn.grid(row=2, column=2, padx=4)
 
-    def check_for_dates(self):
-        top_date = self.date_pick.get_date()
-        f_date = self.date_from_entry.get_date()
-        t_date = self.date_to_entry.get_date()
-        print(f"The top date is {top_date}, the from date is {f_date} and the to date is {t_date}")
-
+    # --------------------------- Querying ----------------------------------#
     def route_query(self):
         # Get the integer value of btn_var
         operation = self.btn_var.get()
@@ -144,30 +135,7 @@ class App(ctk.CTk, Database):
         elif operation == 0:  # Expense recording
             messagebox.showerror("Incorrect Operation Type", "Choose 'query', not 'expense', to query")
 
-    def query_percent(self):
-        expense_type = self.query_var.get()
-        from_date = self.date_from_entry.get_date()
-        to_date = self.date_to_entry.get_date()
-        percentage = self.query_percent_of_total(expense_type, from_date, to_date)
-        ic(percentage)
-
-    def query_total(self):
-        expense_type = self.query_var.get()
-        from_date = self.date_from_entry.get_date()
-        to_date = self.date_to_entry.get_date()
-        total = self.query_total_usd(expense_type, from_date, to_date)
-        if total is not None:
-            ic(total)
-        else:
-            ic("No expenses found for the selected criteria")
-
-    def get_expense_info(self):
-        date_var = self.date_pick.get_date()
-        print("The following info will later be rolled into a table insert:")
-        print(f"Date: {date_var}")
-        print(f"Expense, {date_var},expense amount: {self.expense_curr_var.get()} {self.expense_amt_var.get()}")
-        print(f"Expense description: {self.exp_desc_var.get()}, expense type: {self.exp_type_var.get()}")
-
+    # ------------------------------- Toplevels -------------------------------#
     def create_expense_toplevel(self):
         # get parameters for ExpenseToplevel
         date = self.date_pick.get_date()
@@ -175,20 +143,19 @@ class App(ctk.CTk, Database):
         exp_type = self.exp_type_var.get()
         currency = self.expense_curr_var.get()
         amount = self.expense_amt_var.get()
-        ic(date, description, exp_type, currency, amount)
+        operation = self.btn_var.get()
 
-        # Create an instance of SaveTransaction with the required attributes
-        save_transaction = SaveTransaction(date, 1, currency, amount, exp_type, description)
+        if operation == 1:
+            messagebox.showerror("Incorrect Operation Type", "Choose 'expense', not 'query', to add expense")
+        else:
+            save_transaction = SaveTransaction(date, 1, currency, amount, exp_type, description)
 
-        # Calculate the USD amount using convert_to_usd from SaveTransaction
-        usd_amount = save_transaction.convert_to_usd()
+            usd_amount = save_transaction.convert_to_usd()
 
-        # create ExpenseToplevel instance with the additional usd_amount argument
-        save_toplevel = ExpenseToplevel(date, description, exp_type, currency, amount, usd_amount)
-
-        save_button = ctk.CTkButton(save_toplevel, text="Save Expense",
-                                    command=lambda: [save_transaction.save_expense(), save_toplevel.destroy()])
-        save_button.pack(in_=save_toplevel.btn_frame, expand=True, fill=ctk.BOTH)
+            save_toplevel = ExpenseToplevel(date, description, exp_type, currency, amount, usd_amount)
+            save_button = ctk.CTkButton(save_toplevel, text="Save Expense",
+                                        command=lambda: [save_transaction.save_expense(), save_toplevel.destroy()])
+            save_button.pack(in_=save_toplevel.btn_frame, expand=True, fill=ctk.BOTH)
 
     def create_query_total_toplevel(self):
         from_date = self.date_from_entry.get_date()
@@ -205,6 +172,17 @@ class App(ctk.CTk, Database):
         percentage = self.query_percent_of_total(expense_type, from_date, to_date)
         query_percent_toplevel = QueryPercentToplevel(from_date, to_date, expense_type, percentage)
         return query_percent_toplevel
+
+    # -------------------------------- Reports --------------------------------#
+
+    def create_new_report(self):
+        f_date = self.date_from_entry.get_date()
+        t_date = self.date_to_entry.get_date()
+        new_report = Report(f_date, t_date)
+        new_report.create_main_reports_dir()
+        new_report.create_new_report_dir()
+        new_report.create_report_csv()
+        new_report.create_report_log()
 
 
 if __name__ == '__main__':

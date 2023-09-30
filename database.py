@@ -1,5 +1,5 @@
 import sqlite3
-from icecream import ic
+import csv
 
 
 class Database:
@@ -38,7 +38,6 @@ class Database:
     # ------------------------ Expense Operations ---------------------------- #
 
     def add_expense_type(self, new_type=None):
-        # List of categories to be added
         types_to_add = [
             'clothing', 'electricity', 'entertainment', 'fruit', 'groceries', 'health', 'household_items',
             'internet', 'misc', 'petrol', 'rent', 'restaurant', 'supplements', 'travel', 'visas',
@@ -48,13 +47,11 @@ class Database:
             types_to_add.extend(new_type)
         try:
             for type_name in types_to_add:
-                # Check if the category already exists in the table
                 self.cursor.execute("SELECT type_name FROM Expense_type WHERE type_name=?",
                                     (type_name,))
                 existing_types = self.cursor.fetchone()
 
                 if existing_types is None:
-                    # If the category doesn't exist, insert it into the table
                     self.cursor.execute("INSERT INTO Expense_type(type_name) VALUES(?)", (type_name,))
                     print(f"Category '{type_name}' added successfully.")
             self.conn.commit()
@@ -83,20 +80,12 @@ class Database:
 
     # ------------------------ Expense Query Functions ---------------------------- #
 
-    def check_shit(self, from_date, to_date):
-        query = """SELECT SUM(usd) FROM Expense_record
-                    WHERE date BETWEEN ? AND ?"""
-        parameters = (from_date, to_date)
-        result = self.cursor.execute(query, parameters).fetchone()[0]
-        self.conn.commit()
-        return result
-
     def query_total_usd(self, expense_type=None, from_date=None, to_date=None):
         if expense_type == 'all':
             query = """SELECT SUM(usd) AS query_usd 
                     FROM Expense_record
                     WHERE date BETWEEN ? AND ?
-                    """
+                    """  # can we get rid of AS query_usd?
             parameters = (from_date, to_date)
         else:
             query = """SELECT SUM(usd) AS query_usd
@@ -115,9 +104,45 @@ class Database:
         selected_expense = self.query_total_usd(expense_type, from_date, to_date)
         selected_percent = selected_expense / all_expenses
         return '{:.2%}'.format(selected_percent)
-        # if expense_type != 'all':
-        #     selected_expense = self.query_total_usd(expense_type, from_date, to_date)
-        #     selected_percent = selected_expense / all_expenses
-        #     return '{:.2%}'.format(selected_percent)
-        # else:
-        #     return "All is 100 percent of all, dipshit!"
+
+    # -------------------------------- Reports ---------------------------------- #
+    def generate_report(self, from_date, to_date):
+        total_amount = self.query_total_usd('all', from_date, to_date)
+
+        report = {}
+
+        self.cursor.execute("SELECT DISTINCT type_fk FROM Expense_record")
+        expense_types = [row[0] for row in self.cursor.fetchall()]
+
+        for expense_type in expense_types:
+            type_total = self.query_total_usd(expense_type, from_date, to_date)
+
+            if type_total is not None and total_amount is not None and total_amount != 0:
+                percent_of_total = (type_total / total_amount) * 100
+            else:
+                percent_of_total = 0.0
+
+            report[expense_type] = {
+                "Expense Type": expense_type,
+                "Total Amount (USD)": type_total,
+                "Percent of Total": '{:.2f}%'.format(percent_of_total)
+            }
+
+        if total_amount is not None:
+            report['Total'] = {
+                "Expense Type": 'Total',
+                "Total Amount (USD)": total_amount,
+                "Percent of Total": '100.00%'
+            }
+        return report
+
+    def generate_report_csv(self, from_date, to_date, filename):
+        report = self.generate_report(from_date, to_date)
+
+        with open(filename, 'w', newline='') as csvfile:
+            fieldnames = ["Expense Type", "Total Amount (USD)", "Percent of Total"]
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+
+            for expense_type, data in report.items():
+                writer.writerow(data)
