@@ -22,7 +22,7 @@ confirms the expense, converts the expense amount to USD, and inserts the expens
 to the Expense_record table.  At the same time, the expense is logged in expense_log.txt.
 
 Queries can be performed for unique expense types over a selected time period, stipulated via the 'Date from' and 'Date to' Date Entries 
-below the 'Expense Currency' combobox, or for the total expense over a selected time period. Furthermore, the query metric can either for the total currency amount attributable to the chosen expense type, or for the percentage
+below the 'Expense Currency' combobox, or for the total expense over a selected time period. Furthermore, the query metric can either be for the total currency amount attributable to the chosen expense type, or for the percentage
 of the total expense that the chosen expense type accounted for.  These queries are measured in USD, allowing for expenses to be incurred 
 in multiple countries over a queried time period.
 
