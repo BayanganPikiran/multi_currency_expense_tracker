@@ -52,11 +52,11 @@ class SaveTransaction(Database, ConvertToUSD):
 
         return decorator
 
-    def read_expense_log(self, log_file=None):
+    def read_expense_log(self, log_file="expense_log.txt"):
         if log_file is None:
             log_file = "expense_log.txt"
 
-        log_file_path = os.path.join("/home/boss_andre/Python_Projects/budgeter", log_file)
+        log_file_path = os.path.join("/home/boss_andre/Python_Projects/expense_tracker", log_file)
 
         if not os.path.exists(log_file_path):
             return "Expense log file does not exist."
